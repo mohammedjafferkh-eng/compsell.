@@ -14,7 +14,221 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conversations: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          listing_id: string
+          seller_id: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          seller_id: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          seller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_images: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          listing_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          listing_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          listing_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_images_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listings: {
+        Row: {
+          campus: string | null
+          category: string
+          city: string | null
+          condition: string
+          created_at: string
+          description: string | null
+          id: string
+          price: number
+          quantity: number
+          seller_id: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          campus?: string | null
+          category: string
+          city?: string | null
+          condition: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          price?: number
+          quantity?: number
+          seller_id: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          campus?: string | null
+          category?: string
+          city?: string | null
+          condition?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          price?: number
+          quantity?: number
+          seller_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          message: string
+          sender_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          message: string
+          sender_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          campus: string | null
+          city: string | null
+          created_at: string
+          id: string
+          name: string
+          rating: number
+          review_count: number
+        }
+        Insert: {
+          avatar_url?: string | null
+          campus?: string | null
+          city?: string | null
+          created_at?: string
+          id: string
+          name?: string
+          rating?: number
+          review_count?: number
+        }
+        Update: {
+          avatar_url?: string | null
+          campus?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          rating?: number
+          review_count?: number
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          listing_id: string | null
+          rating: number
+          reviewed_user_id: string
+          reviewer_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          rating: number
+          reviewed_user_id: string
+          reviewer_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          rating?: number
+          reviewed_user_id?: string
+          reviewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
