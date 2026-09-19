@@ -16,6 +16,7 @@ import { Route as ChatsRouteImport } from './routes/chats'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as MyListingsRouteImport } from './routes/my-listings'
 import { Route as SellRouteImport } from './routes/sell'
+import { Route as ChatIdRouteImport } from './routes/chat.$id'
 import { Route as ListingIdRouteImport } from './routes/listing.$id'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
 import { Route as ListingIdEditRouteImport } from './routes/listing.$id.edit'
@@ -55,6 +56,11 @@ const SellRoute = SellRouteImport.update({
   path: '/sell',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatIdRoute = ChatIdRouteImport.update({
+  id: '/chat/$id',
+  path: '/chat/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ListingIdRoute = ListingIdRouteImport.update({
   id: '/listing/$id',
   path: '/listing/$id',
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/explore': typeof ExploreRoute
   '/my-listings': typeof MyListingsRoute
   '/sell': typeof SellRoute
+  '/chat/$id': typeof ChatIdRoute
   '/listing/$id': typeof ListingIdRouteWithChildren
   '/profile/$id': typeof ProfileIdRoute
   '/listing/$id/edit': typeof ListingIdEditRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/explore': typeof ExploreRoute
   '/my-listings': typeof MyListingsRoute
   '/sell': typeof SellRoute
+  '/chat/$id': typeof ChatIdRoute
   '/listing/$id': typeof ListingIdRouteWithChildren
   '/profile/$id': typeof ProfileIdRoute
   '/listing/$id/edit': typeof ListingIdEditRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/explore': typeof ExploreRoute
   '/my-listings': typeof MyListingsRoute
   '/sell': typeof SellRoute
+  '/chat/$id': typeof ChatIdRoute
   '/listing/$id': typeof ListingIdRouteWithChildren
   '/profile/$id': typeof ProfileIdRoute
   '/listing/$id/edit': typeof ListingIdEditRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/my-listings'
     | '/sell'
+    | '/chat/$id'
     | '/listing/$id'
     | '/profile/$id'
     | '/listing/$id/edit'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/my-listings'
     | '/sell'
+    | '/chat/$id'
     | '/listing/$id'
     | '/profile/$id'
     | '/listing/$id/edit'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/my-listings'
     | '/sell'
+    | '/chat/$id'
     | '/listing/$id'
     | '/profile/$id'
     | '/listing/$id/edit'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   ExploreRoute: typeof ExploreRoute
   MyListingsRoute: typeof MyListingsRoute
   SellRoute: typeof SellRoute
+  ChatIdRoute: typeof ChatIdRoute
   ListingIdRoute: typeof ListingIdRouteWithChildren
   ProfileIdRoute: typeof ProfileIdRoute
 }
@@ -210,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat/$id': {
+      id: '/chat/$id'
+      path: '/chat/$id'
+      fullPath: '/chat/$id'
+      preLoaderRoute: typeof ChatIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/listing/$id': {
       id: '/listing/$id'
       path: '/listing/$id'
@@ -254,6 +274,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExploreRoute: ExploreRoute,
   MyListingsRoute: MyListingsRoute,
   SellRoute: SellRoute,
+  ChatIdRoute: ChatIdRoute,
   ListingIdRoute: ListingIdRouteWithChildren,
   ProfileIdRoute: ProfileIdRoute,
 }
