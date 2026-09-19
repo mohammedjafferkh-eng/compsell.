@@ -10,11 +10,25 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ChatsRouteImport } from './routes/chats'
+import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as MyListingsRouteImport } from './routes/my-listings'
+import { Route as SellRouteImport } from './routes/sell'
+import { Route as ChatIdRouteImport } from './routes/chat.$id'
+import { Route as ListingIdRouteImport } from './routes/listing.$id'
+import { Route as ProfileIdRouteImport } from './routes/profile.$id'
+import { Route as ListingIdEditRouteImport } from './routes/listing.$id.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -22,31 +36,140 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatsRoute = ChatsRouteImport.update({
+  id: '/chats',
+  path: '/chats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MyListingsRoute = MyListingsRouteImport.update({
+  id: '/my-listings',
+  path: '/my-listings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SellRoute = SellRouteImport.update({
+  id: '/sell',
+  path: '/sell',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatIdRoute = ChatIdRouteImport.update({
+  id: '/chat/$id',
+  path: '/chat/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListingIdRoute = ListingIdRouteImport.update({
+  id: '/listing/$id',
+  path: '/listing/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileIdRoute = ProfileIdRouteImport.update({
+  id: '/profile/$id',
+  path: '/profile/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ListingIdEditRoute = ListingIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => ListingIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
+  '/chats': typeof ChatsRoute
+  '/explore': typeof ExploreRoute
+  '/my-listings': typeof MyListingsRoute
+  '/sell': typeof SellRoute
+  '/chat/$id': typeof ChatIdRoute
+  '/listing/$id': typeof ListingIdRouteWithChildren
+  '/profile/$id': typeof ProfileIdRoute
+  '/listing/$id/edit': typeof ListingIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
+  '/chats': typeof ChatsRoute
+  '/explore': typeof ExploreRoute
+  '/my-listings': typeof MyListingsRoute
+  '/sell': typeof SellRoute
+  '/chat/$id': typeof ChatIdRoute
+  '/listing/$id': typeof ListingIdRouteWithChildren
+  '/profile/$id': typeof ProfileIdRoute
+  '/listing/$id/edit': typeof ListingIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
+  '/chats': typeof ChatsRoute
+  '/explore': typeof ExploreRoute
+  '/my-listings': typeof MyListingsRoute
+  '/sell': typeof SellRoute
+  '/chat/$id': typeof ChatIdRoute
+  '/listing/$id': typeof ListingIdRouteWithChildren
+  '/profile/$id': typeof ProfileIdRoute
+  '/listing/$id/edit': typeof ListingIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth'
+  fullPaths:
+    | '/'
+    | '/account'
+    | '/auth'
+    | '/chats'
+    | '/explore'
+    | '/my-listings'
+    | '/sell'
+    | '/chat/$id'
+    | '/listing/$id'
+    | '/profile/$id'
+    | '/listing/$id/edit'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth'
-  id: '__root__' | '/' | '/auth'
+  to:
+    | '/'
+    | '/account'
+    | '/auth'
+    | '/chats'
+    | '/explore'
+    | '/my-listings'
+    | '/sell'
+    | '/chat/$id'
+    | '/listing/$id'
+    | '/profile/$id'
+    | '/listing/$id/edit'
+  id:
+    | '__root__'
+    | '/'
+    | '/account'
+    | '/auth'
+    | '/chats'
+    | '/explore'
+    | '/my-listings'
+    | '/sell'
+    | '/chat/$id'
+    | '/listing/$id'
+    | '/profile/$id'
+    | '/listing/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
+  ChatsRoute: typeof ChatsRoute
+  ExploreRoute: typeof ExploreRoute
+  MyListingsRoute: typeof MyListingsRoute
+  SellRoute: typeof SellRoute
+  ChatIdRoute: typeof ChatIdRoute
+  ListingIdRoute: typeof ListingIdRouteWithChildren
+  ProfileIdRoute: typeof ProfileIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +181,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -65,12 +195,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chats': {
+      id: '/chats'
+      path: '/chats'
+      fullPath: '/chats'
+      preLoaderRoute: typeof ChatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-listings': {
+      id: '/my-listings'
+      path: '/my-listings'
+      fullPath: '/my-listings'
+      preLoaderRoute: typeof MyListingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sell': {
+      id: '/sell'
+      path: '/sell'
+      fullPath: '/sell'
+      preLoaderRoute: typeof SellRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat/$id': {
+      id: '/chat/$id'
+      path: '/chat/$id'
+      fullPath: '/chat/$id'
+      preLoaderRoute: typeof ChatIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/listing/$id': {
+      id: '/listing/$id'
+      path: '/listing/$id'
+      fullPath: '/listing/$id'
+      preLoaderRoute: typeof ListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/$id': {
+      id: '/profile/$id'
+      path: '/profile/$id'
+      fullPath: '/profile/$id'
+      preLoaderRoute: typeof ProfileIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/listing/$id/edit': {
+      id: '/listing/$id/edit'
+      path: '/edit'
+      fullPath: '/listing/$id/edit'
+      preLoaderRoute: typeof ListingIdEditRouteImport
+      parentRoute: typeof ListingIdRoute
+    }
   }
 }
 
+interface ListingIdRouteChildren {
+  ListingIdEditRoute: typeof ListingIdEditRoute
+}
+
+const ListingIdRouteChildren: ListingIdRouteChildren = {
+  ListingIdEditRoute: ListingIdEditRoute,
+}
+
+const ListingIdRouteWithChildren = ListingIdRoute._addFileChildren(
+  ListingIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
+  ChatsRoute: ChatsRoute,
+  ExploreRoute: ExploreRoute,
+  MyListingsRoute: MyListingsRoute,
+  SellRoute: SellRoute,
+  ChatIdRoute: ChatIdRoute,
+  ListingIdRoute: ListingIdRouteWithChildren,
+  ProfileIdRoute: ProfileIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
