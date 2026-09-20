@@ -9,6 +9,7 @@ import {
   Wrench,
   Radio,
   Boxes,
+  Calculator,
   type LucideIcon,
 } from "lucide-react";
 
@@ -17,6 +18,7 @@ export const CATEGORIES: { value: string; label: string; icon: LucideIcon }[] = 
   { value: "sensors", label: "Sensors", icon: Gauge },
   { value: "motors", label: "Motors & Drivers", icon: Cog },
   { value: "modules", label: "Modules", icon: CircuitBoard },
+  { value: "calculators", label: "Scientific Calculators", icon: Calculator },
   { value: "power", label: "Power & Batteries", icon: Battery },
   { value: "passives", label: "Passives & ICs", icon: Zap },
   { value: "wires", label: "Wires & Connectors", icon: Cable },
