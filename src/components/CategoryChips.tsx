@@ -1,12 +1,16 @@
+import { Link } from "@tanstack/react-router";
+import { Calculator } from "lucide-react";
 import { CATEGORIES } from "@/lib/marketplace";
 import { cn } from "@/lib/utils";
 
 export function CategoryChips({
   value,
   onChange,
+  showCalculator = false,
 }: {
   value: string | null;
   onChange: (v: string | null) => void;
+  showCalculator?: boolean;
 }) {
   return (
     <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 py-1">
@@ -20,6 +24,16 @@ export function CategoryChips({
           icon={<Icon className="size-3.5" />}
         />
       ))}
+      {showCalculator && (
+        <Link
+          to="/selling-guide"
+          search={{ tab: "calculator" }}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent"
+        >
+          <Calculator className="size-3.5" />
+          Selling calculator
+        </Link>
+      )}
     </div>
   );
 }
