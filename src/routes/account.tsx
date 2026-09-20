@@ -79,7 +79,7 @@ function AccountBody() {
   }, [p]);
 
   async function save() {
-    if (!user) return;
+    if (!user) return undefined;
     setBusy(true);
     const { error } = await supabase
       .from("profiles")
@@ -91,9 +91,13 @@ function AccountBody() {
       })
       .eq("id", user.id);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return undefined;
+    }
     qc.invalidateQueries({ queryKey: ["profile", user.id] });
     toast.success("Profile saved");
+    return undefined;
   }
 
   async function changeAvatar(file: File) {

@@ -100,16 +100,20 @@ function ChatRoom() {
 
   async function send() {
     const body = text.trim();
-    if (!body || !user) return;
+    if (!body || !user) return undefined;
     setSending(true);
     const { error } = await supabase
       .from("messages")
       .insert({ conversation_id: id, sender_id: user.id, message: body });
     setSending(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return undefined;
+    }
     setText("");
     qc.invalidateQueries({ queryKey: ["messages", id] });
     qc.invalidateQueries({ queryKey: ["conversations"] });
+    return undefined;
   }
 
   if (convoQ.isLoading) return <Skeleton className="h-64 w-full rounded-2xl" />;

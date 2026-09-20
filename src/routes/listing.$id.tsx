@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, MessageCircle, Package, Pencil, ArrowLeft } from "lucide-react";
+import { MapPin, MessageCircle, Package, Pencil, ArrowLeft, ShieldAlert, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
@@ -53,6 +53,20 @@ function ListingDetail() {
   });
 
   const listing = listingQ.data;
+  const roleQ = useQuery({
+    queryKey: ["my-owner-role", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user?.id ?? "")
+        .eq("role", "owner")
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
   const sellerQ = useProfile(listing?.seller_id);
   const seller = sellerQ.data as (Profile & { whatsapp?: string | null }) | null | undefined;
 
@@ -97,6 +111,20 @@ function ListingDetail() {
       navigate({ to: "/chat/$id", params: { id: data.id } });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not start the chat");
+    }
+  }
+
+  async function moderateDelete() {
+    if (!listing || !roleQ.data) return;
+    const paths = (listing.listing_images ?? []).map((image) => image.image_url);
+    try {
+      if (paths.length) await supabase.storage.from("listing-images").remove(paths);
+      const { error } = await supabase.from("listings").delete().eq("id", listing.id);
+      if (error) throw error;
+      toast.success("Listing removed");
+      navigate({ to: "/" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not remove listing");
     }
   }
 
@@ -203,6 +231,20 @@ function ListingDetail() {
           </div>
           <span className="text-xs text-primary">View profile</span>
         </Link>
+      )}
+
+      {roleQ.data && !isMine && (
+        <section className="mt-4 rounded-2xl border border-destructive/30 bg-destructive/5 p-3">
+          <div className="flex items-center gap-2 text-sm font-semibold text-destructive">
+            <ShieldAlert className="size-4" /> Owner moderation
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Remove this listing if it is unrelated, unsafe, spam, or otherwise inappropriate.
+          </p>
+          <Button variant="destructive" size="sm" className="mt-3" onClick={moderateDelete}>
+            <Trash2 className="size-4" /> Delete listing
+          </Button>
+        </section>
       )}
 
       <div className="fixed inset-x-0 bottom-16 z-20 border-t border-border bg-card/95 px-4 py-3 backdrop-blur">
