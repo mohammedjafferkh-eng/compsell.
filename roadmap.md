@@ -1,4 +1,4 @@
 - [x] Remove only the large Selling calculator card from Home.
 - [x] Add Selling calculator as a compact item in the category row.
 - [x] Keep the How it works card unchanged.
-- [ ] Verify both links and the compact layout.
+- [x] Verify both links and the compact layout.

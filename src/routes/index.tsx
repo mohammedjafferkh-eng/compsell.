@@ -102,7 +102,7 @@ function Home() {
         <CategoryChips value={category} onChange={setCategory} showCalculator />
       </div>
 
-      <section className="mt-5">
+      <section className="mt-5 grid grid-cols-2 gap-3">
         <Link
           to="/selling-guide"
           search={{ tab: "how" }}
