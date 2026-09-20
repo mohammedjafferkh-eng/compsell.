@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile, useProfileWhatsapp, LISTING_SELECT, type Profile } from "@/lib/queries";
+import { useProfile, LISTING_SELECT, type Profile } from "@/lib/queries";
 import { useSignedUrl } from "@/lib/storage";
 import { categoryIcon, categoryLabel, rupees, timeAgo } from "@/lib/marketplace";
 
@@ -68,8 +68,7 @@ function ListingDetail() {
     },
   });
   const sellerQ = useProfile(listing?.seller_id);
-  const seller = sellerQ.data as Profile | null | undefined;
-  const sellerWhatsapp = useProfileWhatsapp(listing?.seller_id, !!user).data ?? null;
+  const seller = sellerQ.data as (Profile & { whatsapp?: string | null }) | null | undefined;
 
   const reviewsQ = useQuery({
     queryKey: ["reviews", listing?.seller_id],
@@ -267,10 +266,10 @@ function ListingDetail() {
                 <MessageCircle className="size-4" />
                 {listing.status === "SOLD" ? "Sold out" : "Contact seller"}
               </Button>
-              {sellerWhatsapp && (
+              {seller?.whatsapp && (
                 <Button asChild variant="outline">
                   <a
-                    href={`https://wa.me/${sellerWhatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
+                    href={`https://wa.me/${seller.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
                       `Hi, is "${listing.title}" still available on compsell?`,
                     )}`}
                     target="_blank"

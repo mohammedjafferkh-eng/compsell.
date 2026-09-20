@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile, useProfileWhatsapp, type Profile } from "@/lib/queries";
+import { useProfile, type Profile } from "@/lib/queries";
 import { uploadImage, useSignedUrl } from "@/lib/storage";
 
 export const Route = createFileRoute("/account")({
@@ -48,8 +48,7 @@ function AccountBody() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: profile, isLoading } = useProfile(user?.id);
-  const p = profile as Profile | null | undefined;
-  const myWhatsapp = useProfileWhatsapp(user?.id, !!user).data ?? null;
+  const p = profile as (Profile & { whatsapp?: string | null }) | null | undefined;
 
   const [form, setForm] = useState({ name: "", city: "", campus: "", whatsapp: "" });
   const [busy, setBusy] = useState(false);
@@ -75,9 +74,9 @@ function AccountBody() {
         name: p.name ?? "",
         city: p.city ?? "",
         campus: p.campus ?? "",
-        whatsapp: myWhatsapp ?? "",
+        whatsapp: p.whatsapp ?? "",
       });
-  }, [p, myWhatsapp]);
+  }, [p]);
 
   async function save() {
     if (!user) return undefined;
