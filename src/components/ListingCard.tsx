@@ -18,7 +18,7 @@ export type ListingRow = {
   listing_images?: { image_url: string; sort_order: number }[];
 };
 
-export function ListingThumb({ path, alt }: { path?: string | null; alt: string }) {
+export function ListingThumb({ path, alt }: { path?: string | null | undefined; alt: string }) {
   const { data: url } = useSignedUrl("listing-images", path);
   const Icon = categoryIcon("kits");
   if (!url) {

@@ -12,6 +12,7 @@ export type Profile = {
   campus: string | null;
   rating: number;
   review_count: number;
+  whatsapp: string | null;
   created_at: string;
 };
 
@@ -23,7 +24,7 @@ export function useProfile(userId: string | null | undefined) {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", userId!)
+        .eq("id", userId ?? "")
         .maybeSingle();
       if (error) throw error;
       return data as Profile | null;

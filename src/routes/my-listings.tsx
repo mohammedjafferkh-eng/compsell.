@@ -90,9 +90,13 @@ function MyListings() {
       .from("listings")
       .update({ quantity: Math.max(0, qty) })
       .eq("id", row.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return undefined;
+    }
     toast.success(qty <= 0 ? "Marked as sold" : `Stock updated to ${qty}`);
     refresh();
+    return undefined;
   }
 
   async function markSold(row: Row) {
@@ -100,16 +104,24 @@ function MyListings() {
       .from("listings")
       .update({ quantity: 0, status: "SOLD" })
       .eq("id", row.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return undefined;
+    }
     toast.success("Marked as sold");
     refresh();
+    return undefined;
   }
 
   async function remove(row: Row) {
     const { error } = await supabase.from("listings").delete().eq("id", row.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return undefined;
+    }
     toast.success("Listing deleted");
     refresh();
+    return undefined;
   }
 
   if (isLoading) return <Skeleton className="h-40 w-full rounded-2xl" />;

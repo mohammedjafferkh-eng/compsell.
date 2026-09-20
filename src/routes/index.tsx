@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, Plus, MapPin, Sparkles } from "lucide-react";
+import { Search, Plus, MapPin, Sparkles, Calculator, ListChecks, ArrowRight } from "lucide-react";
 import { AppShell, Logo } from "@/components/AppShell";
 import { CategoryChips } from "@/components/CategoryChips";
 import { ListingGrid } from "@/components/ListingCard";
@@ -37,7 +37,7 @@ function Home() {
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
 
-  const place = { city: profile?.city, campus: profile?.campus };
+  const place = { city: profile?.city ?? null, campus: profile?.campus ?? null };
   const nearby = useListings({ sort: "nearby", category }, place);
   const latest = useListings({ sort: "newest", category }, place);
 
@@ -101,6 +101,29 @@ function Home() {
       <div className="pt-3">
         <CategoryChips value={category} onChange={setCategory} />
       </div>
+
+      <section className="mt-5 grid grid-cols-2 gap-3">
+        <Link
+          to="/selling-guide"
+          search={{ tab: "calculator" }}
+          className="circuit rounded-2xl border border-border bg-card p-4 shadow-card"
+        >
+          <Calculator className="size-5 text-primary" />
+          <h2 className="mt-3 text-sm font-semibold">Selling calculator</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Set a fair used price.</p>
+          <ArrowRight className="mt-3 size-4 text-primary" />
+        </Link>
+        <Link
+          to="/selling-guide"
+          search={{ tab: "how" }}
+          className="circuit rounded-2xl border border-border bg-card p-4 shadow-card"
+        >
+          <ListChecks className="size-5 text-primary" />
+          <h2 className="mt-3 text-sm font-semibold">How it works</h2>
+          <p className="mt-1 text-xs text-muted-foreground">List, chat, meet, reuse.</p>
+          <ArrowRight className="mt-3 size-4 text-primary" />
+        </Link>
+      </section>
 
       {nearbyRows.length > 0 && (
         <section className="mt-4">

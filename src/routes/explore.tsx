@@ -22,7 +22,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 export const Route = createFileRoute("/explore")({
   validateSearch: (search: Record<string, unknown>) => ({
-    q: typeof search.q === "string" ? search.q : "",
+    q: typeof search["q"] === "string" ? search["q"] : "",
   }),
   head: () => ({
     meta: [
@@ -66,7 +66,7 @@ function Explore() {
       place,
       sort,
     },
-    { city: profile?.city, campus: profile?.campus },
+    { city: profile?.city ?? null, campus: profile?.campus ?? null },
   );
 
   return (
