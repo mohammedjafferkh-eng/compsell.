@@ -12,9 +12,12 @@ export type Profile = {
   campus: string | null;
   rating: number;
   review_count: number;
-  whatsapp: string | null;
+  whatsapp?: string | null;
   created_at: string;
 };
+
+// Contact number is intentionally excluded: only signed-in users may read it.
+export const PUBLIC_PROFILE_SELECT = "id,name,avatar_url,city,campus,rating,review_count,created_at";
 
 export function useProfile(userId: string | null | undefined) {
   return useQuery({
@@ -23,11 +26,28 @@ export function useProfile(userId: string | null | undefined) {
     queryFn: async (): Promise<Profile | null> => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select(PUBLIC_PROFILE_SELECT)
         .eq("id", userId ?? "")
         .maybeSingle();
       if (error) throw error;
       return data as Profile | null;
+    },
+  });
+}
+
+/** WhatsApp number of a profile — only fetched for signed-in viewers. */
+export function useProfileWhatsapp(userId: string | null | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: ["profile-whatsapp", userId],
+    enabled: !!userId && enabled,
+    queryFn: async (): Promise<string | null> => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("whatsapp")
+        .eq("id", userId ?? "")
+        .maybeSingle();
+      if (error) throw error;
+      return (data?.whatsapp as string | null) ?? null;
     },
   });
 }

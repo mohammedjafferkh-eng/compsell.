@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile, type Profile } from "@/lib/queries";
+import { useProfile, useProfileWhatsapp, type Profile } from "@/lib/queries";
 import { rupees } from "@/lib/marketplace";
 
 export const Route = createFileRoute("/chat/$id")({
@@ -96,7 +96,8 @@ function ChatRoom() {
   const convo = convoQ.data;
   const otherId = convo ? (convo.buyer_id === user?.id ? convo.seller_id : convo.buyer_id) : undefined;
   const { data: otherProfile } = useProfile(otherId);
-  const other = otherProfile as (Profile & { whatsapp?: string | null }) | null | undefined;
+  const other = otherProfile as Profile | null | undefined;
+  const otherWhatsapp = useProfileWhatsapp(otherId, !!user).data ?? null;
 
   async function send() {
     const body = text.trim();
@@ -141,10 +142,10 @@ function ChatRoom() {
             {other?.campus || other?.city || ""}
           </div>
         </div>
-        {other?.whatsapp && (
+        {otherWhatsapp && (
           <Button asChild size="sm" variant="outline">
             <a
-              href={`https://wa.me/${other.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
+              href={`https://wa.me/${otherWhatsapp.replace(/\D/g, "")}?text=${encodeURIComponent(
                 `Hi, about "${listing?.title ?? "your listing"}" on compsell`,
               )}`}
               target="_blank"
