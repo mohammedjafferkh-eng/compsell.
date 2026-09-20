@@ -1,9 +1,9 @@
 # Move seller help into the shortcut row
 
 ## Changes
-- Remove the two large Selling calculator and How it works cards from the home page.
-- Add both as compact icon pills in the same horizontal row as the category buttons, matching the reference image.
-- Keep each pill linked to its existing calculator or instructions tab.
+- Remove only the large Selling calculator card from the home page.
+- Add the Selling calculator as a compact icon pill in the same horizontal row as the category buttons, matching the reference image.
+- Keep the How it works card unchanged.
 - Preserve horizontal scrolling on smaller screens.
 
 ## Technical details

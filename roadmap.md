@@ -1,7 +1,4 @@
-# Roadmap
-
-- [x] Complete listing details, editing, seller listings, profiles, and chats
-- [x] Add secure owner-only moderation to delete inappropriate listings
-- [x] Add selling price calculator section
-- [x] Add "How it works" instructions section
-- [x] Validate build and key screens
+- [ ] Remove only the large Selling calculator card from Home.
+- [ ] Add Selling calculator as a compact item in the category row.
+- [ ] Keep the How it works card unchanged.
+- [ ] Verify both links and the compact layout.
