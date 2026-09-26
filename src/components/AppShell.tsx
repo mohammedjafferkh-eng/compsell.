@@ -46,7 +46,7 @@ export function AppShell({
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [promptOpen, setPromptOpen] = useState(false);
-  const gateClicks = !loading && !user && pathname !== "/auth";
+  const gateClicks = !loading && !user && pathname !== "/auth" && !promptOpen;
 
   return (
     <div
