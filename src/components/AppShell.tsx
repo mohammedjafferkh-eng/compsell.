@@ -1,7 +1,8 @@
-import { Link } from "@tanstack/react-router";
-import { Home, Search, PlusCircle, MessageCircle, User } from "lucide-react";
-import type { ReactNode } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Home, Search, PlusCircle, MessageCircle, User, LogIn } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 const NAV = [
   { to: "/", label: "Home", icon: Home },
@@ -41,8 +42,56 @@ export function AppShell({
   header?: ReactNode;
   hideNav?: boolean;
 }) {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [promptOpen, setPromptOpen] = useState(false);
+  const gateClicks = !loading && !user && pathname !== "/auth";
+
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div
+      className="min-h-screen bg-background pb-20"
+      onClickCapture={
+        gateClicks
+          ? (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setPromptOpen(true);
+            }
+          : undefined
+      }
+    >
+      {promptOpen && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 p-4 backdrop-blur-sm"
+          onClick={() => setPromptOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 text-center shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="mx-auto mb-3 grid size-12 place-items-center rounded-full bg-primary/10 text-primary">
+              <LogIn className="size-6" />
+            </span>
+            <h2 className="font-display text-lg font-bold">Sign in first</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Create a free account or sign in to view details, contact sellers, and list your own components.
+            </p>
+            <button
+              className="mt-4 w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
+              onClick={() => navigate({ to: "/auth" })}
+            >
+              Sign in / Sign up
+            </button>
+            <button
+              className="mt-2 w-full rounded-xl py-2 text-sm font-medium text-muted-foreground"
+              onClick={() => setPromptOpen(false)}
+            >
+              Keep browsing
+            </button>
+          </div>
+        </div>
+      )}
       <header className="sticky top-0 z-30 border-b border-border bg-card/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between gap-3 px-4">
           {header ?? <Logo />}
