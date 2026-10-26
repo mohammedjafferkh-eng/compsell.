@@ -1,4 +1,6 @@
-- [x] Remove only the large Selling calculator card from Home.
-- [x] Add Selling calculator as a compact item in the category row.
-- [x] Keep the How it works card unchanged.
-- [x] Verify both links and the compact layout.
+- [ ] Add completed-projects selling: project fields on listings, form toggle, Projects page, home card
+- [ ] Report button on listings + owner review queue in My listings
+- [ ] Wishlist: heart/save listings + Saved page
+- [ ] Verified student badge (email-verified) on profiles and listings
+- [ ] Follow favourite sellers + followed-sellers feed on home
+- [ ] Price negotiation offers (buyer offers, seller accept/counter/decline)
