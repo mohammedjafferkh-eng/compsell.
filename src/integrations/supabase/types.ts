@@ -78,15 +78,99 @@ export type Database = {
           },
         ]
       }
+      listing_offers: {
+        Row: {
+          amount: number
+          buyer_id: string
+          counter_amount: number | null
+          created_at: string
+          id: string
+          listing_id: string
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          buyer_id: string
+          counter_amount?: number | null
+          created_at?: string
+          id?: string
+          listing_id: string
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string
+          counter_amount?: number | null
+          created_at?: string
+          id?: string
+          listing_id?: string
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_reports: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          reason: string
+          reporter_id: string
+          resolved: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          reason: string
+          reporter_id: string
+          resolved?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          reason?: string
+          reporter_id?: string
+          resolved?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_reports_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           campus: string | null
           category: string
           city: string | null
+          components_used: string | null
           condition: string
           created_at: string
           description: string | null
           id: string
+          includes_code: boolean
+          includes_hardware: boolean
+          includes_report: boolean
+          is_project: boolean
           price: number
           quantity: number
           seller_id: string
@@ -98,10 +182,15 @@ export type Database = {
           campus?: string | null
           category: string
           city?: string | null
+          components_used?: string | null
           condition: string
           created_at?: string
           description?: string | null
           id?: string
+          includes_code?: boolean
+          includes_hardware?: boolean
+          includes_report?: boolean
+          is_project?: boolean
           price?: number
           quantity?: number
           seller_id: string
@@ -113,10 +202,15 @@ export type Database = {
           campus?: string | null
           category?: string
           city?: string | null
+          components_used?: string | null
           condition?: string
           created_at?: string
           description?: string | null
           id?: string
+          includes_code?: boolean
+          includes_hardware?: boolean
+          includes_report?: boolean
+          is_project?: boolean
           price?: number
           quantity?: number
           seller_id?: string
@@ -168,6 +262,7 @@ export type Database = {
           name: string
           rating: number
           review_count: number
+          verified: boolean
           whatsapp: string | null
         }
         Insert: {
@@ -179,6 +274,7 @@ export type Database = {
           name?: string
           rating?: number
           review_count?: number
+          verified?: boolean
           whatsapp?: string | null
         }
         Update: {
@@ -190,6 +286,7 @@ export type Database = {
           name?: string
           rating?: number
           review_count?: number
+          verified?: boolean
           whatsapp?: string | null
         }
         Relationships: []
@@ -231,6 +328,56 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      saved_listings: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_listings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          id: string
+          seller_id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          id?: string
+          seller_id: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          id?: string
+          seller_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
