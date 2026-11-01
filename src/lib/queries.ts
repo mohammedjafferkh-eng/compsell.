@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export const LISTING_SELECT =
-  "id,seller_id,title,category,condition,price,quantity,description,city,campus,status,created_at,listing_images(image_url,sort_order)";
+  "id,seller_id,title,category,condition,price,quantity,description,city,campus,status,created_at,is_project,components_used,includes_code,includes_report,includes_hardware,listing_images(image_url,sort_order)";
 
 export type Profile = {
   id: string;
