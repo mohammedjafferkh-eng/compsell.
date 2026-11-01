@@ -1,6 +1,23 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { MapPin, MessageCircle, Package, Pencil, ArrowLeft, ShieldAlert, Trash2 } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  MapPin,
+  MessageCircle,
+  Package,
+  Pencil,
+  ArrowLeft,
+  ShieldAlert,
+  Trash2,
+  FolderGit2,
+  Flag,
+  BadgeCheck,
+  UserPlus,
+  UserCheck,
+  HandCoins,
+  Check,
+  X,
+} from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
@@ -8,12 +25,25 @@ import { StarRating } from "@/components/StarRating";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useProfile, LISTING_SELECT, type Profile } from "@/lib/queries";
+import { useProfile, useFollowState, useOwnerRole, LISTING_SELECT, type Profile } from "@/lib/queries";
 import { useSignedUrl } from "@/lib/storage";
 import { categoryIcon, categoryLabel, rupees, timeAgo } from "@/lib/marketplace";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 export const Route = createFileRoute("/listing/$id")({
   head: () => ({
@@ -34,10 +64,19 @@ export const Route = createFileRoute("/listing/$id")({
   component: ListingDetail,
 });
 
+type OfferRow = {
+  id: string;
+  amount: number | string;
+  counter_amount: number | string | null;
+  status: string;
+  created_at: string;
+};
+
 function ListingDetail() {
   const { id } = Route.useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const qc = useQueryClient();
 
   const listingQ = useQuery({
     queryKey: ["listing", id],
@@ -53,20 +92,7 @@ function ListingDetail() {
   });
 
   const listing = listingQ.data;
-  const roleQ = useQuery({
-    queryKey: ["my-owner-role", user?.id],
-    enabled: !!user,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user?.id ?? "")
-        .eq("role", "owner")
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
+  const roleQ = useOwnerRole(user?.id);
   const sellerQ = useProfile(listing?.seller_id);
   const seller = sellerQ.data as (Profile & { whatsapp?: string | null }) | null | undefined;
 
@@ -82,6 +108,35 @@ function ListingDetail() {
         .limit(5);
       if (error) throw error;
       return data ?? [];
+    },
+  });
+
+  const offersQ = useQuery({
+    queryKey: ["offers", id, user?.id],
+    enabled: !!user && !!listing && user.id !== listing.seller_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("listing_offers")
+        .select("*")
+        .eq("listing_id", id)
+        .eq("buyer_id", user!.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as OfferRow[];
+    },
+  });
+
+  const receivedCountQ = useQuery({
+    queryKey: ["offers-received", id],
+    enabled: !!user && !!listing && user.id === listing.seller_id,
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("listing_offers")
+        .select("id", { count: "exact", head: true })
+        .eq("listing_id", id)
+        .eq("status", "PENDING");
+      if (error) throw error;
+      return count ?? 0;
     },
   });
 
@@ -115,7 +170,7 @@ function ListingDetail() {
   }
 
   async function moderateDelete() {
-    if (!listing || !roleQ.data) return;
+    if (!listing || !roleQ.data) return undefined;
     const paths = (listing.listing_images ?? []).map((image) => image.image_url);
     try {
       if (paths.length) await supabase.storage.from("listing-images").remove(paths);
@@ -123,8 +178,10 @@ function ListingDetail() {
       if (error) throw error;
       toast.success("Listing removed");
       navigate({ to: "/" });
+      return undefined;
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not remove listing");
+      return undefined;
     }
   }
 
@@ -157,6 +214,9 @@ function ListingDetail() {
   const images = [...(listing.listing_images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
   const Icon = categoryIcon(listing.category);
   const isMine = user?.id === listing.seller_id;
+  const activeOffer = (offersQ.data ?? []).find((o) =>
+    ["PENDING", "ACCEPTED", "COUNTERED"].includes(o.status),
+  );
 
   return (
     <AppShell
@@ -201,6 +261,11 @@ function ListingDetail() {
         <Badge variant="outline" className="gap-1">
           <Package className="size-3" /> Qty {listing.quantity}
         </Badge>
+        {listing.is_project && (
+          <Badge className="gap-1 bg-primary text-primary-foreground">
+            <FolderGit2 className="size-3" /> Completed project
+          </Badge>
+        )}
         <span className="text-muted-foreground">Listed {timeAgo(listing.created_at)}</span>
       </div>
 
@@ -208,6 +273,27 @@ function ListingDetail() {
         <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-foreground/90">
           {listing.description}
         </p>
+      )}
+
+      {listing.is_project && (
+        <section className="mt-4 rounded-2xl border border-border bg-card p-4">
+          <h2 className="flex items-center gap-1.5 text-sm font-semibold">
+            <FolderGit2 className="size-4 text-primary" /> About this project
+          </h2>
+          {listing.components_used && (
+            <p className="mt-2 text-sm text-foreground/90">
+              <span className="font-medium">Components used: </span>
+              {listing.components_used}
+            </p>
+          )}
+          {(listing.includes_code || listing.includes_report || listing.includes_hardware) && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {listing.includes_code && <Badge variant="secondary">Source code</Badge>}
+              {listing.includes_report && <Badge variant="secondary">Report / docs</Badge>}
+              {listing.includes_hardware && <Badge variant="secondary">Working hardware</Badge>}
+            </div>
+          )}
+        </section>
       )}
 
       <div className="mt-4 flex items-center gap-2 rounded-2xl border border-border bg-card p-3 text-sm">
@@ -219,18 +305,43 @@ function ListingDetail() {
       </div>
 
       {seller && (
+        <div className="mt-3 flex items-center gap-3 rounded-2xl border border-border bg-card p-3">
+          <Link
+            to="/profile/$id"
+            params={{ id: seller.id }}
+            className="flex min-w-0 flex-1 items-center gap-3"
+          >
+            <SellerAvatar profile={seller} />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1 truncate text-sm font-semibold">
+                {seller.name}
+                {seller.verified && <VerifiedBadge />}
+              </div>
+              <StarRating value={Number(seller.rating)} count={seller.review_count} />
+            </div>
+            <span className="text-xs text-primary">View profile</span>
+          </Link>
+          {user && !isMine && <FollowButton sellerId={seller.id} />}
+        </div>
+      )}
+
+      {isMine && listing.status === "ACTIVE" && (receivedCountQ.data ?? 0) > 0 && (
         <Link
-          to="/profile/$id"
-          params={{ id: seller.id }}
-          className="mt-3 flex items-center gap-3 rounded-2xl border border-border bg-card p-3"
+          to="/my-listings"
+          className="mt-3 flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/5 p-3 text-sm font-medium text-primary"
         >
-          <SellerAvatar profile={seller} />
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold">{seller.name}</div>
-            <StarRating value={Number(seller.rating)} count={seller.review_count} />
-          </div>
-          <span className="text-xs text-primary">View profile</span>
+          <HandCoins className="size-4" />
+          {receivedCountQ.data} pending offer{(receivedCountQ.data ?? 0) > 1 ? "s" : ""} on this listing
+          — manage in My listings
         </Link>
+      )}
+
+      {!isMine && listing.status === "ACTIVE" && (
+        <OfferBox listingId={listing.id} activeOffer={activeOffer} onContact={contactSeller} />
+      )}
+
+      {user && !isMine && (
+        <ReportDialog listingId={listing.id} />
       )}
 
       {roleQ.data && !isMine && (
@@ -302,6 +413,264 @@ function ListingDetail() {
       )}
       <div className="h-20" />
     </AppShell>
+  );
+}
+
+function FollowButton({ sellerId }: { sellerId: string }) {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const followQ = useFollowState(user?.id, sellerId);
+  const following = followQ.data ?? false;
+
+  const toggle = useMutation({
+    mutationFn: async () => {
+      if (!user) return undefined;
+      if (following) {
+        await supabase
+          .from("seller_follows")
+          .delete()
+          .eq("follower_id", user.id)
+          .eq("seller_id", sellerId);
+        return undefined;
+      }
+      await supabase.from("seller_follows").insert({ follower_id: user.id, seller_id: sellerId });
+      return undefined;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["follow", user?.id, sellerId] });
+      qc.invalidateQueries({ queryKey: ["follower-count", sellerId] });
+      qc.invalidateQueries({ queryKey: ["follow-feed"] });
+      toast.success(following ? "Unfollowed" : "Following — their items show on your home page");
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Could not update"),
+  });
+
+  return (
+    <Button
+      size="sm"
+      variant={following ? "secondary" : "outline"}
+      className="shrink-0"
+      onClick={() => toggle.mutate()}
+      disabled={toggle.isPending}
+    >
+      {following ? <UserCheck className="size-4" /> : <UserPlus className="size-4" />}
+      {following ? "Following" : "Follow"}
+    </Button>
+  );
+}
+
+function OfferBox({
+  listingId,
+  activeOffer,
+  onContact,
+}: {
+  listingId: string;
+  activeOffer: OfferRow | undefined;
+  onContact: () => void;
+}) {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const [amount, setAmount] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const refresh = () => {
+    qc.invalidateQueries({ queryKey: ["offers", listingId] });
+  };
+
+  async function makeOffer() {
+    if (!user) return;
+    const value = Number(amount);
+    if (!value || value <= 0) {
+      toast.error("Enter the amount you'd like to offer");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.from("listing_offers").insert({
+        listing_id: listingId,
+        buyer_id: user.id,
+        seller_id: "",
+        amount: value,
+      });
+      if (error) throw error;
+      toast.success("Offer sent to the seller");
+      setAmount("");
+      refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send offer");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function acceptCounter(offer: OfferRow) {
+    if (!user) return;
+    setBusy(true);
+    try {
+      const { error } = await supabase
+        .from("listing_offers")
+        .update({
+          status: "ACCEPTED",
+          amount: offer.counter_amount,
+          counter_amount: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", offer.id);
+      if (error) throw error;
+      await supabase.rpc("offer_notify", {
+        p_offer_id: offer.id,
+        p_sender: user.id,
+        p_message: `I accept your counter offer of ${rupees(Number(offer.counter_amount))}.`,
+      });
+      toast.success("Counter offer accepted — chat with the seller to finish the deal");
+      refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not accept offer");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function declineCounter(offer: OfferRow) {
+    setBusy(true);
+    try {
+      const { error } = await supabase
+        .from("listing_offers")
+        .update({ status: "DECLINED", updated_at: new Date().toISOString() })
+        .eq("id", offer.id);
+      if (error) throw error;
+      toast.success("Counter offer declined");
+      refresh();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not decline offer");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!user) return null;
+
+  return (
+    <section className="mt-3 rounded-2xl border border-border bg-card p-4">
+      <h2 className="flex items-center gap-1.5 text-sm font-semibold">
+        <HandCoins className="size-4 text-primary" /> Price negotiation
+      </h2>
+      {!activeOffer ? (
+        <>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Think the price is too high? Send your own offer — the seller can accept, counter or decline.
+          </p>
+          <div className="mt-2 flex gap-2">
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">₹</span>
+              <input
+                inputMode="numeric"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ""))}
+                placeholder="Your offer"
+                className="h-10 w-full rounded-xl border border-border bg-background pl-7 pr-3 text-sm outline-none focus:border-primary"
+              />
+            </div>
+            <Button onClick={makeOffer} disabled={busy}>
+              Send offer
+            </Button>
+          </div>
+        </>
+      ) : activeOffer.status === "PENDING" ? (
+        <p className="mt-2 text-sm">
+          Your offer of <span className="price font-semibold">{rupees(Number(activeOffer.amount))}</span> is
+          waiting for the seller's response.
+        </p>
+      ) : activeOffer.status === "ACCEPTED" ? (
+        <div className="mt-2">
+          <p className="flex items-center gap-1.5 text-sm font-medium text-primary">
+            <Check className="size-4" /> Offer of {rupees(Number(activeOffer.amount))} accepted!
+          </p>
+          <Button size="sm" className="mt-2" onClick={onContact}>
+            <MessageCircle className="size-4" /> Message the seller
+          </Button>
+        </div>
+      ) : activeOffer.status === "COUNTERED" ? (
+        <div className="mt-2">
+          <p className="text-sm">
+            Seller countered at{" "}
+            <span className="price font-semibold">{rupees(Number(activeOffer.counter_amount))}</span>
+          </p>
+          <div className="mt-2 flex gap-2">
+            <Button size="sm" onClick={() => acceptCounter(activeOffer)} disabled={busy}>
+              <Check className="size-4" /> Accept
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => declineCounter(activeOffer)} disabled={busy}>
+              <X className="size-4" /> Decline
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <p className="mt-2 text-sm text-muted-foreground">
+          Your last offer was declined. Send a new one if you're still interested.
+        </p>
+      )}
+    </section>
+  );
+}
+
+function ReportDialog({ listingId }: { listingId: string }) {
+  const { user } = useAuth();
+  const [reason, setReason] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit() {
+    if (!user) return undefined;
+    if (!reason.trim()) {
+      toast.error("Tell us briefly what's wrong");
+      return undefined;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase
+        .from("listing_reports")
+        .insert({ listing_id: listingId, reporter_id: user.id, reason: reason.trim() });
+      if (error) throw error;
+      toast.success("Report sent — thanks for keeping compsell clean");
+      setReason("");
+      return undefined;
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send report");
+      return undefined;
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <button className="mt-3 inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive">
+          <Flag className="size-3.5" /> Report this listing
+        </button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Report this listing</AlertDialogTitle>
+          <AlertDialogDescription>
+            Seen unnecessary photos, spam or something unsafe? Tell us what's wrong and the compsell team
+            will review it.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <Textarea
+          rows={3}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="e.g. Photos are not of the actual item / inappropriate / spam"
+        />
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={submit} disabled={busy}>
+            {busy ? "Sending..." : "Send report"}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
