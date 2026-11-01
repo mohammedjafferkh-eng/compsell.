@@ -1,8 +1,14 @@
 import { Link } from "@tanstack/react-router";
-import { MapPin } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Heart, MapPin } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { categoryIcon, categoryLabel, rupees, timeAgo } from "@/lib/marketplace";
+import { useSavedIds } from "@/lib/queries";
 import { useSignedUrl } from "@/lib/storage";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { cn } from "@/lib/utils";
 
 export type ListingRow = {
   id: string;
@@ -15,6 +21,7 @@ export type ListingRow = {
   campus: string | null;
   status: string;
   created_at: string;
+  is_project?: boolean;
   listing_images?: { image_url: string; sort_order: number }[];
 };
 
@@ -38,6 +45,55 @@ export function ListingThumb({ path, alt }: { path?: string | null | undefined; 
   );
 }
 
+export function SaveButton({ listingId, className }: { listingId: string; className?: string }) {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const savedQ = useSavedIds(user?.id);
+  const saved = savedQ.data?.has(listingId) ?? false;
+
+  const toggle = useMutation({
+    mutationFn: async () => {
+      if (!user) return undefined;
+      if (saved) {
+        await supabase
+          .from("saved_listings")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("listing_id", listingId);
+        return undefined;
+      }
+      await supabase.from("saved_listings").insert({ user_id: user.id, listing_id: listingId });
+      return undefined;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["saved-ids", user?.id] });
+      qc.invalidateQueries({ queryKey: ["saved-listings", user?.id] });
+      toast.success(saved ? "Removed from saved" : "Saved — find it on your Saved page");
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Could not save"),
+  });
+
+  if (!user) return null;
+  return (
+    <button
+      type="button"
+      aria-label={saved ? "Remove from saved" : "Save listing"}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggle.mutate();
+      }}
+      className={cn(
+        "absolute right-2 top-2 z-10 grid size-8 place-items-center rounded-full bg-background/85 shadow-card backdrop-blur transition-colors",
+        saved ? "text-primary" : "text-foreground/70 hover:text-primary",
+        className,
+      )}
+    >
+      <Heart className={cn("size-4", saved && "fill-current")} />
+    </button>
+  );
+}
+
 export function ListingCard({ listing }: { listing: ListingRow }) {
   const cover = [...(listing.listing_images ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0];
   const Icon = categoryIcon(listing.category);
@@ -50,9 +106,14 @@ export function ListingCard({ listing }: { listing: ListingRow }) {
     >
       <div className="relative">
         <ListingThumb path={cover?.image_url} alt={listing.title} />
-        {listing.status === "SOLD" && (
+        {listing.status === "SOLD" ? (
           <Badge className="absolute left-2 top-2 bg-foreground text-background">Sold</Badge>
+        ) : (
+          listing.is_project && (
+            <Badge className="absolute left-2 top-2 bg-primary text-primary-foreground">Project</Badge>
+          )
         )}
+        <SaveButton listingId={listing.id} />
       </div>
       <div className="px-0.5 pb-1">
         <div className="price text-base">{rupees(listing.price)}</div>

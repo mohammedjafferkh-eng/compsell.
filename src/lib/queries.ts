@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export const LISTING_SELECT =
-  "id,seller_id,title,category,condition,price,quantity,description,city,campus,status,created_at,listing_images(image_url,sort_order)";
+  "id,seller_id,title,category,condition,price,quantity,description,city,campus,status,created_at,is_project,components_used,includes_code,includes_report,includes_hardware,listing_images(image_url,sort_order)";
 
 export type Profile = {
   id: string;
@@ -74,6 +74,66 @@ export function useListings(filters: Filters, myPlace?: { city?: string | null; 
         rows = [...rows].sort((a, b) => score(a) - score(b));
       }
       return rows;
+    },
+  });
+}
+
+export function useOwnerRole(userId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["my-owner-role", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId ?? "")
+        .eq("role", "owner")
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useSavedIds(userId: string | null | undefined) {
+  return useQuery({
+    queryKey: ["saved-ids", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("saved_listings").select("listing_id");
+      if (error) throw error;
+      return new Set((data ?? []).map((r) => r.listing_id));
+    },
+  });
+}
+
+export function useFollowState(userId: string | null | undefined, sellerId: string) {
+  return useQuery({
+    queryKey: ["follow", userId, sellerId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("seller_follows")
+        .select("id")
+        .eq("follower_id", userId ?? "")
+        .eq("seller_id", sellerId)
+        .maybeSingle();
+      if (error) throw error;
+      return !!data;
+    },
+  });
+}
+
+export function useFollowerCount(sellerId: string) {
+  return useQuery({
+    queryKey: ["follower-count", sellerId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("seller_follows")
+        .select("id", { count: "exact", head: true })
+        .eq("seller_id", sellerId);
+      if (error) throw error;
+      return count ?? 0;
     },
   });
 }

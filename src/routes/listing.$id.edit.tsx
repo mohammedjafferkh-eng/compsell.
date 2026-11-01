@@ -70,6 +70,11 @@ function EditForm() {
         description: listing.description ?? "",
         city: listing.city ?? "",
         campus: listing.campus ?? "",
+        is_project: listing.is_project ?? false,
+        components_used: listing.components_used ?? "",
+        includes_code: listing.includes_code ?? false,
+        includes_report: listing.includes_report ?? false,
+        includes_hardware: listing.includes_hardware ?? false,
       });
     }
   }, [listing, values]);
@@ -103,6 +108,11 @@ function EditForm() {
           description: values.description.trim() || null,
           city: values.city || null,
           campus: values.campus || null,
+          is_project: values.is_project,
+          components_used: values.components_used.trim() || null,
+          includes_code: values.includes_code,
+          includes_report: values.includes_report,
+          includes_hardware: values.includes_hardware,
         })
         .eq("id", id);
       if (error) throw error;

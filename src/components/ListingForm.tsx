@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { X, ImagePlus } from "lucide-react";
+import { X, ImagePlus, FolderGit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -23,9 +25,20 @@ export type ListingFormValues = {
   description: string;
   city: string;
   campus: string;
+  is_project: boolean;
+  components_used: string;
+  includes_code: boolean;
+  includes_report: boolean;
+  includes_hardware: boolean;
 };
 
 export const MAX_PHOTOS = 5;
+
+const INCLUDES = [
+  { key: "includes_code", label: "Source code" },
+  { key: "includes_report", label: "Report / docs" },
+  { key: "includes_hardware", label: "Working hardware" },
+] as const;
 
 export function ListingForm({
   values,
@@ -175,6 +188,53 @@ export function ListingForm({
           onChange={(e) => set({ description: e.target.value })}
           placeholder="Barely used, soldered headers, tested with Arduino IDE."
         />
+      </div>
+
+      <div className="rounded-2xl border border-border bg-card p-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <Label htmlFor="is-project" className="inline-flex items-center gap-1.5">
+              <FolderGit2 className="size-4 text-primary" /> Completed project
+            </Label>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Selling a finished project? Add what it does and what is included.
+            </p>
+          </div>
+          <Switch
+            id="is-project"
+            checked={values.is_project}
+            onCheckedChange={(v) => set({ is_project: v })}
+          />
+        </div>
+
+        {values.is_project && (
+          <div className="mt-3 space-y-3 border-t border-border pt-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="components-used">Components used</Label>
+              <Textarea
+                id="components-used"
+                rows={2}
+                value={values.components_used}
+                onChange={(e) => set({ components_used: e.target.value })}
+                placeholder="ESP32, DHT22, 16x2 LCD, jumper wires"
+              />
+            </div>
+            <div>
+              <Label>What is included</Label>
+              <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                {INCLUDES.map(({ key, label }) => (
+                  <label key={key} className="inline-flex cursor-pointer items-center gap-1.5">
+                    <Checkbox
+                      checked={values[key]}
+                      onCheckedChange={(v) => set({ [key]: v === true } as Partial<ListingFormValues>)}
+                    />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
