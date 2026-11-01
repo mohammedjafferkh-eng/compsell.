@@ -8,6 +8,13 @@
       "when": 1793008530494,
       "tag": "0000_projects_offers_saves_reports_verification",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793523535691,
+      "tag": "0001_fix_follows_read_policy",
+      "breakpoints": true
     }
   ]
 }
