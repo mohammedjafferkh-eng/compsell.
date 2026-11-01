@@ -59,6 +59,11 @@ function SellForm() {
     description: "",
     city: "",
     campus: "",
+    is_project: false,
+    components_used: "",
+    includes_code: false,
+    includes_report: false,
+    includes_hardware: false,
   });
 
   const filled = {
@@ -87,6 +92,11 @@ function SellForm() {
           description: filled.description.trim() || null,
           city: filled.city || null,
           campus: filled.campus || null,
+          is_project: filled.is_project,
+          components_used: filled.components_used.trim() || null,
+          includes_code: filled.includes_code,
+          includes_report: filled.includes_report,
+          includes_hardware: filled.includes_hardware,
         })
         .select("id")
         .single();
