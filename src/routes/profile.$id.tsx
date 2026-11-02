@@ -104,8 +104,11 @@ function PublicProfile() {
           {avatarUrl && <AvatarImage src={avatarUrl} alt={p.name} />}
           <AvatarFallback>{p.name.slice(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
-        <div className="min-w-0">
-          <h1 className="truncate text-lg font-semibold">{p.name}</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="flex items-center gap-1.5 truncate text-lg font-semibold">
+            {p.name}
+            {p.verified && <VerifiedBadge />}
+          </h1>
           {(p.campus || p.city) && (
             <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
               <MapPin className="size-3" />
@@ -113,7 +116,22 @@ function PublicProfile() {
             </p>
           )}
           <StarRating value={Number(p.rating)} count={p.review_count} />
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {followersQ.data ?? 0} follower{(followersQ.data ?? 0) === 1 ? "" : "s"}
+          </p>
         </div>
+        {user && !isMe && (
+          <Button
+            size="sm"
+            variant={following ? "secondary" : "outline"}
+            className="shrink-0"
+            onClick={() => toggleFollow.mutate()}
+            disabled={toggleFollow.isPending}
+          >
+            {following ? <UserCheck className="size-4" /> : <UserPlus className="size-4" />}
+            {following ? "Following" : "Follow"}
+          </Button>
+        )}
       </div>
 
       <section className="mt-6">
