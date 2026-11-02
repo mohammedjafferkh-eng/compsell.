@@ -149,14 +149,24 @@ function AccountBody() {
         </div>
       </div>
 
-      <Button asChild variant="outline" className="w-full justify-between">
-        <Link to="/my-listings">
-          <span className="inline-flex items-center gap-2">
-            <Package className="size-4" /> My listings
-          </span>
-          <span className="text-muted-foreground">{activeCount.data ?? 0} active</span>
-        </Link>
-      </Button>
+      <div className="grid gap-2">
+        <Button asChild variant="outline" className="w-full justify-between">
+          <Link to="/my-listings">
+            <span className="inline-flex items-center gap-2">
+              <Package className="size-4" /> My listings
+            </span>
+            <span className="text-muted-foreground">{activeCount.data ?? 0} active</span>
+          </Link>
+        </Button>
+        <Button asChild variant="outline" className="w-full justify-between">
+          <Link to="/saved">
+            <span className="inline-flex items-center gap-2">
+              <Heart className="size-4" /> Saved listings
+            </span>
+            <span className="text-muted-foreground">View →</span>
+          </Link>
+        </Button>
+      </div>
 
       <div className="space-y-4 rounded-2xl border border-border bg-card p-4">
         <div className="space-y-1.5">
