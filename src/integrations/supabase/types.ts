@@ -402,7 +402,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      offer_notify: {
+        Args: { p_message: string; p_offer_id: string; p_sender: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "owner" | "user"
