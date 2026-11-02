@@ -1,14 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { MapPin } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MapPin, UserPlus, UserCheck } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
 import { StarRating } from "@/components/StarRating";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { Button } from "@/components/ui/button";
 import { ListingGrid } from "@/components/ListingCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfile, LISTING_SELECT, type Profile } from "@/lib/queries";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile, useFollowState, useFollowerCount, LISTING_SELECT, type Profile } from "@/lib/queries";
 import { useSignedUrl } from "@/lib/storage";
 import { timeAgo } from "@/lib/marketplace";
 
