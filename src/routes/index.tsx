@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, Plus, MapPin, Sparkles, ListChecks, ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Search, Plus, MapPin, Sparkles, ListChecks, FolderGit2, ArrowRight, Users } from "lucide-react";
 import { AppShell, Logo } from "@/components/AppShell";
 import { CategoryChips } from "@/components/CategoryChips";
 import { ListingGrid } from "@/components/ListingCard";
@@ -9,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
-import { useListings, useProfile } from "@/lib/queries";
+import { useListings, useProfile, LISTING_SELECT } from "@/lib/queries";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -46,6 +48,29 @@ function Home() {
       (profile?.campus && l.campus?.toLowerCase() === profile.campus.toLowerCase()) ||
       (profile?.city && l.city?.toLowerCase() === profile.city.toLowerCase()),
   );
+
+  const followFeed = useQuery({
+    queryKey: ["follow-feed", user?.id],
+    enabled: !!user && !category,
+    queryFn: async () => {
+      const { data: follows, error } = await supabase
+        .from("seller_follows")
+        .select("seller_id")
+        .eq("follower_id", user!.id);
+      if (error) throw error;
+      const ids = (follows ?? []).map((f) => f.seller_id);
+      if (!ids.length) return [];
+      const { data, error: e2 } = await supabase
+        .from("listings")
+        .select(LISTING_SELECT)
+        .in("seller_id", ids)
+        .eq("status", "ACTIVE")
+        .order("created_at", { ascending: false })
+        .limit(6);
+      if (e2) throw e2;
+      return data ?? [];
+    },
+  });
 
   return (
     <AppShell>
@@ -113,12 +138,28 @@ function Home() {
           <p className="mt-1 text-xs text-muted-foreground">List, chat, meet, reuse.</p>
           <ArrowRight className="mt-3 size-4 text-primary" />
         </Link>
+        <Link
+          to="/projects"
+          className="circuit rounded-2xl border border-border bg-card p-4 shadow-card"
+        >
+          <FolderGit2 className="size-5 text-primary" />
+          <h2 className="mt-3 text-sm font-semibold">Completed projects</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Buy ready-made builds with code &amp; report.</p>
+          <ArrowRight className="mt-3 size-4 text-primary" />
+        </Link>
       </section>
 
       {nearbyRows.length > 0 && (
         <section className="mt-4">
           <SectionTitle icon={<MapPin className="size-4 text-primary" />} title="Nearby listings" />
           <ListingGrid listings={nearbyRows.slice(0, 6)} />
+        </section>
+      )}
+
+      {followFeed.data && followFeed.data.length > 0 && (
+        <section className="mt-6">
+          <SectionTitle icon={<Users className="size-4 text-primary" />} title="From sellers you follow" />
+          <ListingGrid listings={followFeed.data} />
         </section>
       )}
 
