@@ -337,7 +337,7 @@ function ListingDetail() {
       )}
 
       {!isMine && listing.status === "ACTIVE" && (
-        <OfferBox listingId={listing.id} activeOffer={activeOffer} onContact={contactSeller} />
+        <OfferBox listingId={listing.id} sellerId={listing.seller_id} activeOffer={activeOffer} onContact={contactSeller} />
       )}
 
       {user && !isMine && (
@@ -461,10 +461,12 @@ function FollowButton({ sellerId }: { sellerId: string }) {
 
 function OfferBox({
   listingId,
+  sellerId,
   activeOffer,
   onContact,
 }: {
   listingId: string;
+  sellerId: string;
   activeOffer: OfferRow | undefined;
   onContact: () => void;
 }) {
@@ -489,7 +491,7 @@ function OfferBox({
       const { error } = await supabase.from("listing_offers").insert({
         listing_id: listingId,
         buyer_id: user.id,
-        seller_id: "",
+        seller_id: sellerId,
         amount: value,
       });
       if (error) throw error;

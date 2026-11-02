@@ -13,6 +13,7 @@ export type Profile = {
   rating: number;
   review_count: number;
   whatsapp: string | null;
+  verified: boolean;
   created_at: string;
 };
 

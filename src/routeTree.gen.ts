@@ -15,6 +15,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ChatsRouteImport } from './routes/chats'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as MyListingsRouteImport } from './routes/my-listings'
+import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SellingGuideRouteImport } from './routes/selling-guide'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
@@ -50,6 +52,16 @@ const ExploreRoute = ExploreRouteImport.update({
 const MyListingsRoute = MyListingsRouteImport.update({
   id: '/my-listings',
   path: '/my-listings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsRoute = ProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SavedRoute = SavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellRoute = SellRouteImport.update({
@@ -90,6 +102,8 @@ export interface FileRoutesByFullPath {
   '/chats': typeof ChatsRoute
   '/explore': typeof ExploreRoute
   '/my-listings': typeof MyListingsRoute
+  '/projects': typeof ProjectsRoute
+  '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/selling-guide': typeof SellingGuideRoute
   '/chat/$id': typeof ChatIdRoute
@@ -104,6 +118,8 @@ export interface FileRoutesByTo {
   '/chats': typeof ChatsRoute
   '/explore': typeof ExploreRoute
   '/my-listings': typeof MyListingsRoute
+  '/projects': typeof ProjectsRoute
+  '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/selling-guide': typeof SellingGuideRoute
   '/chat/$id': typeof ChatIdRoute
@@ -119,6 +135,8 @@ export interface FileRoutesById {
   '/chats': typeof ChatsRoute
   '/explore': typeof ExploreRoute
   '/my-listings': typeof MyListingsRoute
+  '/projects': typeof ProjectsRoute
+  '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/selling-guide': typeof SellingGuideRoute
   '/chat/$id': typeof ChatIdRoute
@@ -135,6 +153,8 @@ export interface FileRouteTypes {
     | '/chats'
     | '/explore'
     | '/my-listings'
+    | '/projects'
+    | '/saved'
     | '/sell'
     | '/selling-guide'
     | '/chat/$id'
@@ -149,6 +169,8 @@ export interface FileRouteTypes {
     | '/chats'
     | '/explore'
     | '/my-listings'
+    | '/projects'
+    | '/saved'
     | '/sell'
     | '/selling-guide'
     | '/chat/$id'
@@ -163,6 +185,8 @@ export interface FileRouteTypes {
     | '/chats'
     | '/explore'
     | '/my-listings'
+    | '/projects'
+    | '/saved'
     | '/sell'
     | '/selling-guide'
     | '/chat/$id'
@@ -178,6 +202,8 @@ export interface RootRouteChildren {
   ChatsRoute: typeof ChatsRoute
   ExploreRoute: typeof ExploreRoute
   MyListingsRoute: typeof MyListingsRoute
+  ProjectsRoute: typeof ProjectsRoute
+  SavedRoute: typeof SavedRoute
   SellRoute: typeof SellRoute
   SellingGuideRoute: typeof SellingGuideRoute
   ChatIdRoute: typeof ChatIdRoute
@@ -227,6 +253,20 @@ declare module '@tanstack/react-router' {
       path: '/my-listings'
       fullPath: '/my-listings'
       preLoaderRoute: typeof MyListingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saved': {
+      id: '/saved'
+      path: '/saved'
+      fullPath: '/saved'
+      preLoaderRoute: typeof SavedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sell': {
@@ -293,6 +333,8 @@ const rootRouteChildren: RootRouteChildren = {
   ChatsRoute: ChatsRoute,
   ExploreRoute: ExploreRoute,
   MyListingsRoute: MyListingsRoute,
+  ProjectsRoute: ProjectsRoute,
+  SavedRoute: SavedRoute,
   SellRoute: SellRoute,
   SellingGuideRoute: SellingGuideRoute,
   ChatIdRoute: ChatIdRoute,

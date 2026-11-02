@@ -1,14 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { MapPin } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MapPin, UserPlus, UserCheck } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState } from "@/components/EmptyState";
 import { StarRating } from "@/components/StarRating";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { Button } from "@/components/ui/button";
 import { ListingGrid } from "@/components/ListingCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { useProfile, LISTING_SELECT, type Profile } from "@/lib/queries";
+import { useAuth } from "@/hooks/useAuth";
+import { useProfile, useFollowState, useFollowerCount, LISTING_SELECT, type Profile } from "@/lib/queries";
 import { useSignedUrl } from "@/lib/storage";
 import { timeAgo } from "@/lib/marketplace";
 
@@ -29,9 +33,34 @@ export const Route = createFileRoute("/profile/$id")({
 
 function PublicProfile() {
   const { id } = Route.useParams();
+  const { user } = useAuth();
   const { data: profile, isLoading } = useProfile(id);
   const p = profile as Profile | null | undefined;
   const { data: avatarUrl } = useSignedUrl("avatars", p?.avatar_url);
+  const followQ = useFollowState(user?.id, id);
+  const followersQ = useFollowerCount(id);
+  const qc = useQueryClient();
+  const following = followQ.data ?? false;
+  const isMe = user?.id === id;
+
+  const toggleFollow = useMutation({
+    mutationFn: async () => {
+      if (!user) return undefined;
+      if (following) {
+        await supabase.from("seller_follows").delete().eq("follower_id", user.id).eq("seller_id", id);
+        return undefined;
+      }
+      await supabase.from("seller_follows").insert({ follower_id: user.id, seller_id: id });
+      return undefined;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["follow", user?.id, id] });
+      qc.invalidateQueries({ queryKey: ["follower-count", id] });
+      qc.invalidateQueries({ queryKey: ["follow-feed"] });
+      toast.success(following ? "Unfollowed" : `Following ${p?.name ?? "seller"}`);
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Could not update"),
+  });
 
   const listingsQ = useQuery({
     queryKey: ["seller-listings", id],
@@ -75,8 +104,11 @@ function PublicProfile() {
           {avatarUrl && <AvatarImage src={avatarUrl} alt={p.name} />}
           <AvatarFallback>{p.name.slice(0, 2).toUpperCase()}</AvatarFallback>
         </Avatar>
-        <div className="min-w-0">
-          <h1 className="truncate text-lg font-semibold">{p.name}</h1>
+        <div className="min-w-0 flex-1">
+          <h1 className="flex items-center gap-1.5 truncate text-lg font-semibold">
+            {p.name}
+            {p.verified && <VerifiedBadge />}
+          </h1>
           {(p.campus || p.city) && (
             <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
               <MapPin className="size-3" />
@@ -84,7 +116,22 @@ function PublicProfile() {
             </p>
           )}
           <StarRating value={Number(p.rating)} count={p.review_count} />
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {followersQ.data ?? 0} follower{(followersQ.data ?? 0) === 1 ? "" : "s"}
+          </p>
         </div>
+        {user && !isMe && (
+          <Button
+            size="sm"
+            variant={following ? "secondary" : "outline"}
+            className="shrink-0"
+            onClick={() => toggleFollow.mutate()}
+            disabled={toggleFollow.isPending}
+          >
+            {following ? <UserCheck className="size-4" /> : <UserPlus className="size-4" />}
+            {following ? "Following" : "Follow"}
+          </Button>
+        )}
       </div>
 
       <section className="mt-6">
