@@ -33,9 +33,34 @@ export const Route = createFileRoute("/profile/$id")({
 
 function PublicProfile() {
   const { id } = Route.useParams();
+  const { user } = useAuth();
   const { data: profile, isLoading } = useProfile(id);
   const p = profile as Profile | null | undefined;
   const { data: avatarUrl } = useSignedUrl("avatars", p?.avatar_url);
+  const followQ = useFollowState(user?.id, id);
+  const followersQ = useFollowerCount(id);
+  const qc = useQueryClient();
+  const following = followQ.data ?? false;
+  const isMe = user?.id === id;
+
+  const toggleFollow = useMutation({
+    mutationFn: async () => {
+      if (!user) return undefined;
+      if (following) {
+        await supabase.from("seller_follows").delete().eq("follower_id", user.id).eq("seller_id", id);
+        return undefined;
+      }
+      await supabase.from("seller_follows").insert({ follower_id: user.id, seller_id: id });
+      return undefined;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["follow", user?.id, id] });
+      qc.invalidateQueries({ queryKey: ["follower-count", id] });
+      qc.invalidateQueries({ queryKey: ["follow-feed"] });
+      toast.success(following ? "Unfollowed" : `Following ${p?.name ?? "seller"}`);
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Could not update"),
+  });
 
   const listingsQ = useQuery({
     queryKey: ["seller-listings", id],
