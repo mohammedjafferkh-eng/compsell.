@@ -270,8 +270,10 @@ function OffersTab() {
   async function act(offer: OfferRow, action: "ACCEPTED" | "COUNTERED" | "DECLINED", counter?: number) {
     setBusyId(offer.id);
     try {
-      const patch: Record<string, unknown> = { status: action, updated_at: new Date().toISOString() };
-      if (action === "COUNTERED") patch.counter_amount = counter;
+      const patch: { status: string; updated_at: string; counter_amount?: number } =
+        action === "COUNTERED"
+          ? { status: action, updated_at: new Date().toISOString(), counter_amount: counter ?? 0 }
+          : { status: action, updated_at: new Date().toISOString() };
       const { error } = await supabase.from("listing_offers").update(patch).eq("id", offer.id);
       if (error) throw error;
       const title = offer.listings?.title ?? "your listing";

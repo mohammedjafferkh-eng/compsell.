@@ -8,7 +8,8 @@ import { ListingGrid } from "@/components/ListingCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { LISTING_SELECT, type ListingRow } from "@/lib/queries";
+import { LISTING_SELECT } from "@/lib/queries";
+import type { ListingRow } from "@/components/ListingCard";
 
 export const Route = createFileRoute("/saved")({
   head: () => ({
