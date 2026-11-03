@@ -513,7 +513,7 @@ function OfferBox({
         .from("listing_offers")
         .update({
           status: "ACCEPTED",
-          amount: offer.counter_amount,
+          amount: Number(offer.counter_amount ?? offer.amount),
           counter_amount: null,
           updated_at: new Date().toISOString(),
         })
