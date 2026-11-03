@@ -1,6 +1,7 @@
-- [ ] Add completed-projects selling: project fields on listings, form toggle, Projects page, home card
-- [ ] Report button on listings + owner review queue in My listings
-- [ ] Wishlist: heart/save listings + Saved page
-- [ ] Verified student badge (email-verified) on profiles and listings
-- [ ] Follow favourite sellers + followed-sellers feed on home
-- [ ] Price negotiation offers (buyer offers, seller accept/counter/decline)
+- [x] Add completed-projects selling: project fields on listings, form toggle, Projects page, home card
+- [x] Report button on listings + owner review queue in My listings
+- [x] Wishlist: heart/save listings + Saved page
+- [x] Verified student badge (email-verified) on profiles and listings
+- [x] Follow favourite sellers + followed-sellers feed on home
+- [x] Price negotiation offers (buyer offers, seller accept/counter/decline)
+- [ ] Browser-test the new flows signed in (blocked: needs a minted preview session — rerun with lovable auth-session --self next turn)
