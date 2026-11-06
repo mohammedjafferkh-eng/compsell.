@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AccountRouteImport } from './routes/account'
+import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ChatsRouteImport } from './routes/chats'
 import { Route as ExploreRouteImport } from './routes/explore'
@@ -19,6 +20,7 @@ import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SellingGuideRouteImport } from './routes/selling-guide'
+import { Route as AssistantThreadIdRouteImport } from './routes/assistant.$threadId'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
 import { Route as ListingIdRouteImport } from './routes/listing.$id'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
@@ -32,6 +34,11 @@ const IndexRoute = IndexRouteImport.update({
 const AccountRoute = AccountRouteImport.update({
   id: '/account',
   path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssistantRoute = AssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -74,6 +81,11 @@ const SellingGuideRoute = SellingGuideRouteImport.update({
   path: '/selling-guide',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssistantThreadIdRoute = AssistantThreadIdRouteImport.update({
+  id: '/$threadId',
+  path: '/$threadId',
+  getParentRoute: () => AssistantRoute,
+} as any)
 const ChatIdRoute = ChatIdRouteImport.update({
   id: '/chat/$id',
   path: '/chat/$id',
@@ -98,6 +110,7 @@ const ListingIdEditRoute = ListingIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/assistant': typeof AssistantRouteWithChildren
   '/auth': typeof AuthRoute
   '/chats': typeof ChatsRoute
   '/explore': typeof ExploreRoute
@@ -106,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/selling-guide': typeof SellingGuideRoute
+  '/assistant/$threadId': typeof AssistantThreadIdRoute
   '/chat/$id': typeof ChatIdRoute
   '/listing/$id': typeof ListingIdRouteWithChildren
   '/profile/$id': typeof ProfileIdRoute
@@ -114,6 +128,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/assistant': typeof AssistantRouteWithChildren
   '/auth': typeof AuthRoute
   '/chats': typeof ChatsRoute
   '/explore': typeof ExploreRoute
@@ -122,6 +137,7 @@ export interface FileRoutesByTo {
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/selling-guide': typeof SellingGuideRoute
+  '/assistant/$threadId': typeof AssistantThreadIdRoute
   '/chat/$id': typeof ChatIdRoute
   '/listing/$id': typeof ListingIdRouteWithChildren
   '/profile/$id': typeof ProfileIdRoute
@@ -131,6 +147,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
+  '/assistant': typeof AssistantRouteWithChildren
   '/auth': typeof AuthRoute
   '/chats': typeof ChatsRoute
   '/explore': typeof ExploreRoute
@@ -139,6 +156,7 @@ export interface FileRoutesById {
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/selling-guide': typeof SellingGuideRoute
+  '/assistant/$threadId': typeof AssistantThreadIdRoute
   '/chat/$id': typeof ChatIdRoute
   '/listing/$id': typeof ListingIdRouteWithChildren
   '/profile/$id': typeof ProfileIdRoute
@@ -149,6 +167,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/account'
+    | '/assistant'
     | '/auth'
     | '/chats'
     | '/explore'
@@ -157,6 +176,7 @@ export interface FileRouteTypes {
     | '/saved'
     | '/sell'
     | '/selling-guide'
+    | '/assistant/$threadId'
     | '/chat/$id'
     | '/listing/$id'
     | '/profile/$id'
@@ -165,6 +185,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/account'
+    | '/assistant'
     | '/auth'
     | '/chats'
     | '/explore'
@@ -173,6 +194,7 @@ export interface FileRouteTypes {
     | '/saved'
     | '/sell'
     | '/selling-guide'
+    | '/assistant/$threadId'
     | '/chat/$id'
     | '/listing/$id'
     | '/profile/$id'
@@ -181,6 +203,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/account'
+    | '/assistant'
     | '/auth'
     | '/chats'
     | '/explore'
@@ -189,6 +212,7 @@ export interface FileRouteTypes {
     | '/saved'
     | '/sell'
     | '/selling-guide'
+    | '/assistant/$threadId'
     | '/chat/$id'
     | '/listing/$id'
     | '/profile/$id'
@@ -198,6 +222,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
+  AssistantRoute: typeof AssistantRouteWithChildren
   AuthRoute: typeof AuthRoute
   ChatsRoute: typeof ChatsRoute
   ExploreRoute: typeof ExploreRoute
@@ -225,6 +250,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assistant': {
+      id: '/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AssistantRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -283,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellingGuideRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assistant/$threadId': {
+      id: '/assistant/$threadId'
+      path: '/$threadId'
+      fullPath: '/assistant/$threadId'
+      preLoaderRoute: typeof AssistantThreadIdRouteImport
+      parentRoute: typeof AssistantRoute
+    }
     '/chat/$id': {
       id: '/chat/$id'
       path: '/chat/$id'
@@ -314,6 +353,18 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AssistantRouteChildren {
+  AssistantThreadIdRoute: typeof AssistantThreadIdRoute
+}
+
+const AssistantRouteChildren: AssistantRouteChildren = {
+  AssistantThreadIdRoute: AssistantThreadIdRoute,
+}
+
+const AssistantRouteWithChildren = AssistantRoute._addFileChildren(
+  AssistantRouteChildren,
+)
+
 interface ListingIdRouteChildren {
   ListingIdEditRoute: typeof ListingIdEditRoute
 }
@@ -329,6 +380,7 @@ const ListingIdRouteWithChildren = ListingIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
+  AssistantRoute: AssistantRouteWithChildren,
   AuthRoute: AuthRoute,
   ChatsRoute: ChatsRoute,
   ExploreRoute: ExploreRoute,
