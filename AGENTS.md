@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- AI features (assistant, listing writer, smart search, listing guard) live in `src/lib/ai.functions.ts` as authenticated server functions using `@lovable.dev/ai-gateway`; keep prompts and model calls server-side only.

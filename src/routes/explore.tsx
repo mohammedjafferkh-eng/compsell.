@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, Bot, Loader2 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { smartSearch } from "@/lib/ai.functions";
 import { AppShell } from "@/components/AppShell";
 import { CategoryChips } from "@/components/CategoryChips";
 import { ListingGrid } from "@/components/ListingCard";
@@ -55,6 +58,29 @@ function Explore() {
   const [place, setPlace] = useState("");
   const [sort, setSort] = useState<string>("newest");
   const [showFilters, setShowFilters] = useState(false);
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiSummary, setAiSummary] = useState("");
+  const smart = useServerFn(smartSearch);
+
+  async function runSmart() {
+    setAiBusy(true);
+    try {
+      const f = await smart({ data: { query: q } });
+      setQ(f.q);
+      setCategory(f.category);
+      setCondition(f.condition);
+      setMin(f.min != null ? String(f.min) : "");
+      setMax(f.max != null ? String(f.max) : "");
+      setPlace(f.place);
+      setSort(f.sort);
+      setAiSummary(f.summary);
+      if (f.condition || f.min != null || f.max != null || f.place) setShowFilters(true);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Smart search failed");
+    } finally {
+      setAiBusy(false);
+    }
+  }
 
   const { data, isLoading } = useListings(
     {
@@ -77,13 +103,25 @@ function Explore() {
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search ESP32, sensors, motors..."
+          placeholder='Try "cheap ESP32 under ₹300 near my campus"'
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && q.trim()) runSmart();
+          }}
           className="h-11 rounded-xl bg-card pl-9"
           aria-label="Search components"
         />
       </div>
 
       <div className="mt-3 flex items-center gap-2">
+        <Button
+          size="sm"
+          className="h-9 rounded-full"
+          disabled={aiBusy || !q.trim()}
+          onClick={runSmart}
+          aria-label="Smart search with AI"
+        >
+          {aiBusy ? <Loader2 className="size-3.5 animate-spin" /> : <Bot className="size-3.5" />} Smart search
+        </Button>
         <Select value={sort} onValueChange={setSort}>
           <SelectTrigger className="h-9 w-[170px] rounded-full bg-card text-xs">
             <SelectValue />
@@ -158,6 +196,11 @@ function Explore() {
         </div>
       )}
 
+      {aiSummary && (
+        <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
+          <Bot className="size-3.5" /> AI searched: {aiSummary}
+        </p>
+      )}
       <p className="mt-4 text-xs text-muted-foreground">
         {isLoading ? "Searching..." : `${data?.length ?? 0} listings`}
       </p>
