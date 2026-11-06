@@ -9,6 +9,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { uploadImage } from "@/lib/storage";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/lib/queries";
+import { useServerFn } from "@tanstack/react-start";
+import { AiListingWriter } from "@/components/AiListingWriter";
+import { screenListing } from "@/lib/ai.functions";
+import { fileToSmallDataUrl } from "@/lib/ai-client";
 
 export const Route = createFileRoute("/sell")({
   head: () => ({
@@ -48,6 +52,7 @@ function SellForm() {
   const { data: profile } = useProfile(user?.id);
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const screen = useServerFn(screenListing);
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [values, setValues] = useState<ListingFormValues>({
@@ -80,6 +85,16 @@ function SellForm() {
     }
     setBusy(true);
     try {
+      const images = await Promise.all(files.map((f) => fileToSmallDataUrl(f)));
+      const verdict = await screen({
+        data: { title: filled.title, description: filled.description, images },
+      });
+      if (!verdict.ok) {
+        toast.error(verdict.reason || "These photos or details don't look like an electronics listing.", {
+          duration: 8000,
+        });
+        return;
+      }
       const { data: listing, error } = await supabase
         .from("listings")
         .insert({
@@ -123,6 +138,20 @@ function SellForm() {
   }
 
   return (
+    <>
+    <AiListingWriter
+      isProject={values.is_project}
+      onApply={(d) =>
+        setValues((v) => ({
+          ...v,
+          title: d.title || v.title,
+          description: d.description || v.description,
+          category: d.category || v.category,
+          condition: d.condition || v.condition,
+          price: d.price > 0 ? String(d.price) : v.price,
+        }))
+      }
+    />
     <ListingForm
       values={filled}
       onChange={setValues}
@@ -130,7 +159,8 @@ function SellForm() {
       onFilesChange={setFiles}
       onSubmit={submit}
       submitting={busy}
-      submitLabel="Publish listing"
+      submitLabel={busy ? "Checking..." : "Publish listing"}
     />
+    </>
   );
 }
