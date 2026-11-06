@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Home, Search, PlusCircle, MessageCircle, User, LogIn } from "lucide-react";
+import { Home, Search, PlusCircle, MessageCircle, User, LogIn, Bot } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -94,7 +94,17 @@ export function AppShell({
       )}
       <header className="sticky top-0 z-30 border-b border-border bg-card/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-3xl items-center justify-between gap-3 px-4">
-          {header ?? <Logo />}
+          {header ?? (
+            <>
+              <Logo />
+              <Link
+                to="/assistant"
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary"
+              >
+                <Bot className="size-4" /> Ask compsell AI
+              </Link>
+            </>
+          )}
         </div>
       </header>
       <main className="mx-auto max-w-3xl px-4 py-4">{children}</main>

@@ -5,3 +5,7 @@
 - [x] Follow favourite sellers + followed-sellers feed on home
 - [x] Price negotiation offers (buyer offers, seller accept/counter/decline)
 - [ ] Browser-test the new flows signed in (blocked: needs a minted preview session — rerun with lovable auth-session --self next turn)
+- [ ] AI: "Ask compsell" assistant (separate saved chats)
+- [ ] AI: listing writer (title, description, price) on Sell form
+- [ ] AI: smart search (plain language → filters)
+- [ ] AI: photo/listing guard before publishing
