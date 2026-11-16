@@ -102,7 +102,7 @@ export function ListingCard({ listing }: { listing: ListingRow }) {
     <Link
       to="/listing/$id"
       params={{ id: listing.id }}
-      className="group flex flex-col gap-2 rounded-2xl border border-border bg-card p-2.5 shadow-card transition-shadow hover:shadow-pop"
+      className="group flex flex-col gap-2 rounded-lg border border-border bg-card p-2.5 transition-colors hover:border-primary/50"
     >
       <div className="relative">
         <ListingThumb path={cover?.image_url} alt={listing.title} />
@@ -140,7 +140,7 @@ export function ListingCard({ listing }: { listing: ListingRow }) {
 
 export function ListingGrid({ listings }: { listings: ListingRow[] }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {listings.map((l) => (
         <ListingCard key={l.id} listing={l} />
       ))}

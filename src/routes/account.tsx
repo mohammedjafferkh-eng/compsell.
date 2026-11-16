@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile, type Profile } from "@/lib/queries";
 import { uploadImage, useSignedUrl } from "@/lib/storage";
+import { useSiteEditor } from "@/lib/site-settings";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
@@ -27,6 +28,8 @@ export const Route = createFileRoute("/account")({
       { property: "og:title", content: "My profile — compsell" },
       { property: "og:description", content: "Update your compsell profile details." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AccountPage,
@@ -45,6 +48,7 @@ function AccountPage() {
 
 function AccountBody() {
   const { user, signOut } = useAuth();
+  const { data: canEditSite } = useSiteEditor(user?.id);
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: profile, isLoading } = useProfile(user?.id);
@@ -150,6 +154,7 @@ function AccountBody() {
       </div>
 
       <div className="grid gap-2">
+        {canEditSite && <Button asChild variant="outline" className="w-full justify-between"><Link to="/site-settings">Edit founder &amp; site logo <span>→</span></Link></Button>}
         <Button asChild variant="outline" className="w-full justify-between">
           <Link to="/my-listings">
             <span className="inline-flex items-center gap-2">

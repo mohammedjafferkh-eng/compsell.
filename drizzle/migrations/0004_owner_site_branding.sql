@@ -1,0 +1,16 @@
+CREATE FUNCTION public.can_edit_site() RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$ SELECT auth.uid() = '2a8df159-3a9b-4071-88c6-ccb63e4db6be'::uuid AND EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'owner') $$;
+REVOKE ALL ON FUNCTION public.can_edit_site() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.can_edit_site() TO anon, authenticated, service_role;
+CREATE TABLE public.site_settings (id text PRIMARY KEY DEFAULT 'main' CHECK (id = 'main'), founder_name text NOT NULL DEFAULT 'Mohammed Jaffar kh', founder_bio text NOT NULL DEFAULT '', founder_photo text, about_text text NOT NULL DEFAULT '', logo_path text, updated_at timestamptz NOT NULL DEFAULT now());
+GRANT SELECT ON public.site_settings TO anon;
+GRANT SELECT, INSERT, UPDATE ON public.site_settings TO authenticated;
+GRANT ALL ON public.site_settings TO service_role;
+ALTER TABLE public.site_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public site content" ON public.site_settings FOR SELECT TO anon, authenticated USING (id = 'main');
+CREATE POLICY "Founder creates site content" ON public.site_settings FOR INSERT TO authenticated WITH CHECK (public.can_edit_site());
+CREATE POLICY "Founder edits site content" ON public.site_settings FOR UPDATE TO authenticated USING (public.can_edit_site()) WITH CHECK (public.can_edit_site());
+CREATE POLICY "Founder uploads branding" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'site-branding' AND public.can_edit_site() AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Founder reads branding uploads" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'site-branding' AND public.can_edit_site());
+CREATE POLICY "Published branding is readable" ON storage.objects FOR SELECT TO anon, authenticated USING (bucket_id = 'site-branding' AND EXISTS (SELECT 1 FROM public.site_settings WHERE logo_path = name OR founder_photo = name));
+CREATE POLICY "Founder updates branding" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'site-branding' AND public.can_edit_site()) WITH CHECK (bucket_id = 'site-branding' AND public.can_edit_site());
+CREATE POLICY "Founder removes branding" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'site-branding' AND public.can_edit_site());

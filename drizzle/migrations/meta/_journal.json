@@ -29,6 +29,13 @@
       "when": 1793991553477,
       "tag": "0003_ai_assistant_threads",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794831135007,
+      "tag": "0004_owner_site_branding",
+      "breakpoints": true
     }
   ]
 }

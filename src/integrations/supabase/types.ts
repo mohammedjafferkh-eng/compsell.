@@ -438,6 +438,36 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          about_text: string
+          founder_bio: string
+          founder_name: string
+          founder_photo: string | null
+          id: string
+          logo_path: string | null
+          updated_at: string
+        }
+        Insert: {
+          about_text?: string
+          founder_bio?: string
+          founder_name?: string
+          founder_photo?: string | null
+          id?: string
+          logo_path?: string | null
+          updated_at?: string
+        }
+        Update: {
+          about_text?: string
+          founder_bio?: string
+          founder_name?: string
+          founder_photo?: string | null
+          id?: string
+          logo_path?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -461,6 +491,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_edit_site: { Args: never; Returns: boolean }
       offer_notify: {
         Args: { p_message: string; p_offer_id: string; p_sender: string }
         Returns: undefined

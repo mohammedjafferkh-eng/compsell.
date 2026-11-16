@@ -12,6 +12,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/hooks/useAuth";
 import { useListings, useProfile, LISTING_SELECT } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
+import workbench from "@/assets/components-workbench.jpg";
+import { DEFAULT_ABOUT, useSiteSettings } from "@/lib/site-settings";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,6 +42,7 @@ function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: profile } = useProfile(user?.id);
+  const { data: settings } = useSiteSettings();
 
   const place = { city: profile?.city ?? null, campus: profile?.campus ?? null };
   const nearby = useListings({ sort: "nearby", category }, place);
@@ -55,10 +58,11 @@ function Home() {
     queryKey: ["follow-feed", user?.id],
     enabled: !!user && !category,
     queryFn: async () => {
+      if (!user) return [];
       const { data: follows, error } = await supabase
         .from("seller_follows")
         .select("seller_id")
-        .eq("follower_id", user!.id);
+        .eq("follower_id", user.id);
       if (error) throw error;
       const ids = (follows ?? []).map((f) => f.seller_id);
       if (!ids.length) return [];
@@ -76,16 +80,16 @@ function Home() {
 
   return (
     <AppShell>
-      <section className="circuit -mx-4 -mt-4 border-b border-border bg-card px-4 pb-5 pt-5">
-        <h1 className="text-2xl font-bold leading-tight">
-          Buy. Sell. <span className="text-primary">Reuse Electronics.</span>
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Spare components from makers and students near you.
-        </p>
+      <section className="market-hero relative -mx-5 -mt-6 overflow-hidden border-b border-border lg:-mx-8">
+        <img src={workbench} alt="ESP32, Arduino, breadboard and scientific calculator on a workbench" width={1920} height={1024} fetchPriority="high" className="market-hero-image absolute inset-0 h-full w-full object-cover" />
+        <div className="relative z-10 max-w-xl px-5 py-12 sm:max-w-[58%] sm:py-14 lg:px-8">
+        <p className="mb-5 flex items-center gap-2 font-mono text-xs uppercase text-primary"><span className="size-2 rounded-full bg-primary" /> The student electronics exchange</p>
+        <h1 className="font-display text-5xl font-bold leading-none sm:text-6xl">compsell<span className="text-primary">.</span></h1>
+        <p className="mt-5 font-display text-2xl font-medium leading-tight sm:text-3xl">Buy. Sell.<br /><span className="text-primary">Reuse Electronics.</span></p>
+        <p className="mt-4 max-w-sm text-sm leading-relaxed text-foreground/80">Your next build starts with someone’s spare. Find components, calculators and completed projects near you.</p>
 
         <form
-          className="mt-4 flex gap-2"
+          className="mt-6 flex gap-2"
           onSubmit={(e) => {
             e.preventDefault();
             navigate({ to: "/explore", search: { q } });
@@ -97,17 +101,17 @@ function Home() {
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search ESP32, sensors, motors..."
-              className="h-11 rounded-xl bg-background pl-9"
+              className="h-11 rounded-md bg-card pl-9"
               aria-label="Search components"
             />
           </div>
-          <Button type="submit" className="h-11 rounded-xl px-4">
-            Search
+          <Button type="submit" aria-label="Search" className="h-11 rounded-md px-3">
+            <ArrowRight className="size-5" />
           </Button>
         </form>
 
         <div className="mt-3 flex items-center gap-2">
-          <Button asChild size="sm" className="rounded-full">
+          <Button asChild size="sm" variant="outline" className="bg-card">
             <Link to="/sell">
               <Plus className="size-4" /> Sell a Component
             </Link>
@@ -118,22 +122,21 @@ function Home() {
               {profile.campus || profile.city}
             </span>
           ) : (
-            <Link to="/account" className="text-xs text-primary">
-              Set your campus for nearby results
-            </Link>
+            <span className="text-xs text-foreground/70">Made for students &amp; makers</span>
           )}
+        </div>
         </div>
       </section>
 
-      <div className="pt-3">
+      <div className="border-b border-border pb-5 pt-5">
         <CategoryChips value={category} onChange={setCategory} showCalculator />
       </div>
 
-      <section className="mt-5 grid grid-cols-2 gap-3">
+      <section className="mt-6 grid grid-cols-2 divide-x divide-border border-y border-border">
         <Link
           to="/selling-guide"
           search={{ tab: "how" }}
-          className="circuit rounded-2xl border border-border bg-card p-4 shadow-card"
+          className="group p-4 transition-colors hover:bg-secondary sm:p-6"
         >
           <ListChecks className="size-5 text-primary" />
           <h2 className="mt-3 text-sm font-semibold">How it works</h2>
@@ -142,7 +145,7 @@ function Home() {
         </Link>
         <Link
           to="/projects"
-          className="circuit rounded-2xl border border-border bg-card p-4 shadow-card"
+          className="group p-4 transition-colors hover:bg-secondary sm:p-6"
         >
           <FolderGit2 className="size-5 text-primary" />
           <h2 className="mt-3 text-sm font-semibold">Completed projects</h2>
@@ -165,7 +168,7 @@ function Home() {
         </section>
       )}
 
-      <section className="mt-6">
+      <section className="mt-10">
         <SectionTitle icon={<Sparkles className="size-4 text-primary" />} title="Latest listings" />
         {latest.isLoading ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -187,13 +190,17 @@ function Home() {
           <ListingGrid listings={latest.data ?? []} />
         )}
       </section>
+      <section className="mt-14 grid gap-6 border-t border-border py-10 md:grid-cols-[1fr_1.5fr]">
+        <div><p className="font-mono text-xs uppercase text-primary">01 / Why compsell</p><h2 className="mt-4 text-3xl font-semibold">A second life.<br />A new possibility.</h2></div>
+        <div><p className="max-w-xl text-base leading-relaxed text-muted-foreground">{settings?.about_text || DEFAULT_ABOUT}</p><div className="mt-6 flex flex-wrap gap-4"><Button asChild variant="outline"><Link to="/about">About compsell <ArrowRight className="size-4" /></Link></Button><Button asChild variant="ghost"><Link to="/founder">Meet the founder <ArrowRight className="size-4" /></Link></Button></div></div>
+      </section>
     </AppShell>
   );
 }
 
 function SectionTitle({ icon, title }: { icon: React.ReactNode; title: string }) {
   return (
-    <h2 className="mb-2.5 flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+    <h2 className="mb-5 flex items-center gap-2 text-xl font-semibold text-foreground">
       {icon}
       {title}
     </h2>

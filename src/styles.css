@@ -120,7 +120,7 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.015em;
+    letter-spacing: 0;
   }
 }
 
@@ -152,7 +152,7 @@
   font-family: var(--font-display);
   font-variant-numeric: tabular-nums;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 @utility no-scrollbar {
@@ -167,3 +167,16 @@
 .ai-md ol { list-style: decimal; padding-left: 1.2rem; margin: 0.35rem 0; }
 .ai-md strong { font-weight: 600; }
 .ai-md code { background: var(--secondary); padding: 0 0.25rem; border-radius: 0.25rem; }
+
+@keyframes component-scroll { to { transform: translateX(-50%); } }
+.component-ticker { animation: component-scroll 38s linear infinite; }
+.component-ticker:hover { animation-play-state: paused; }
+.market-hero { min-height: 450px; }
+.market-hero-image { object-position: center; }
+@media (max-width: 639px) {
+  .market-hero { min-height: 520px; }
+  .market-hero-image { object-position: 32% center; opacity: 0.35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .component-ticker { animation: none; }
+}

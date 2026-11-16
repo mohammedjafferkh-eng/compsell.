@@ -14,6 +14,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/sonner";
+import { useSiteSettings } from "@/lib/site-settings";
+import { useSignedUrl } from "@/lib/storage";
 
 
 function NotFoundComponent() {
@@ -135,11 +137,23 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <SiteFavicon />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <Toaster position="top-center" />
       </AuthProvider>
     </QueryClientProvider>
   );
+}
+
+function SiteFavicon() {
+  const { data } = useSiteSettings();
+  const { data: url } = useSignedUrl("site-branding", data?.logo_path);
+  useEffect(() => {
+    if (!url) return;
+    const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (icon) {icon.href = url; icon.type = "image/png";}
+  }, [url]);
+  return null;
 }
 

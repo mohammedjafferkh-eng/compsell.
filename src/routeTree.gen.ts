@@ -10,16 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AssistantRouteImport } from './routes/assistant'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ChatsRouteImport } from './routes/chats'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as FounderRouteImport } from './routes/founder'
 import { Route as MyListingsRouteImport } from './routes/my-listings'
 import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SellRouteImport } from './routes/sell'
 import { Route as SellingGuideRouteImport } from './routes/selling-guide'
+import { Route as SiteSettingsRouteImport } from './routes/site-settings'
 import { Route as AssistantThreadIdRouteImport } from './routes/assistant.$threadId'
 import { Route as ChatIdRouteImport } from './routes/chat.$id'
 import { Route as ListingIdRouteImport } from './routes/listing.$id'
@@ -29,6 +33,11 @@ import { Route as ListingIdEditRouteImport } from './routes/listing.$id.edit'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountRoute = AccountRouteImport.update({
@@ -56,6 +65,11 @@ const ExploreRoute = ExploreRouteImport.update({
   path: '/explore',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FounderRoute = FounderRouteImport.update({
+  id: '/founder',
+  path: '/founder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MyListingsRoute = MyListingsRouteImport.update({
   id: '/my-listings',
   path: '/my-listings',
@@ -64,6 +78,11 @@ const MyListingsRoute = MyListingsRouteImport.update({
 const ProjectsRoute = ProjectsRouteImport.update({
   id: '/projects',
   path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SavedRoute = SavedRouteImport.update({
@@ -79,6 +98,11 @@ const SellRoute = SellRouteImport.update({
 const SellingGuideRoute = SellingGuideRouteImport.update({
   id: '/selling-guide',
   path: '/selling-guide',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SiteSettingsRoute = SiteSettingsRouteImport.update({
+  id: '/site-settings',
+  path: '/site-settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AssistantThreadIdRoute = AssistantThreadIdRouteImport.update({
@@ -109,16 +133,20 @@ const ListingIdEditRoute = ListingIdEditRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/assistant': typeof AssistantRouteWithChildren
   '/auth': typeof AuthRoute
   '/chats': typeof ChatsRoute
   '/explore': typeof ExploreRoute
+  '/founder': typeof FounderRoute
   '/my-listings': typeof MyListingsRoute
   '/projects': typeof ProjectsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/selling-guide': typeof SellingGuideRoute
+  '/site-settings': typeof SiteSettingsRoute
   '/assistant/$threadId': typeof AssistantThreadIdRoute
   '/chat/$id': typeof ChatIdRoute
   '/listing/$id': typeof ListingIdRouteWithChildren
@@ -127,16 +155,20 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/assistant': typeof AssistantRouteWithChildren
   '/auth': typeof AuthRoute
   '/chats': typeof ChatsRoute
   '/explore': typeof ExploreRoute
+  '/founder': typeof FounderRoute
   '/my-listings': typeof MyListingsRoute
   '/projects': typeof ProjectsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/selling-guide': typeof SellingGuideRoute
+  '/site-settings': typeof SiteSettingsRoute
   '/assistant/$threadId': typeof AssistantThreadIdRoute
   '/chat/$id': typeof ChatIdRoute
   '/listing/$id': typeof ListingIdRouteWithChildren
@@ -146,16 +178,20 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/account': typeof AccountRoute
   '/assistant': typeof AssistantRouteWithChildren
   '/auth': typeof AuthRoute
   '/chats': typeof ChatsRoute
   '/explore': typeof ExploreRoute
+  '/founder': typeof FounderRoute
   '/my-listings': typeof MyListingsRoute
   '/projects': typeof ProjectsRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/saved': typeof SavedRoute
   '/sell': typeof SellRoute
   '/selling-guide': typeof SellingGuideRoute
+  '/site-settings': typeof SiteSettingsRoute
   '/assistant/$threadId': typeof AssistantThreadIdRoute
   '/chat/$id': typeof ChatIdRoute
   '/listing/$id': typeof ListingIdRouteWithChildren
@@ -166,16 +202,20 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/account'
     | '/assistant'
     | '/auth'
     | '/chats'
     | '/explore'
+    | '/founder'
     | '/my-listings'
     | '/projects'
+    | '/reset-password'
     | '/saved'
     | '/sell'
     | '/selling-guide'
+    | '/site-settings'
     | '/assistant/$threadId'
     | '/chat/$id'
     | '/listing/$id'
@@ -184,16 +224,20 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/account'
     | '/assistant'
     | '/auth'
     | '/chats'
     | '/explore'
+    | '/founder'
     | '/my-listings'
     | '/projects'
+    | '/reset-password'
     | '/saved'
     | '/sell'
     | '/selling-guide'
+    | '/site-settings'
     | '/assistant/$threadId'
     | '/chat/$id'
     | '/listing/$id'
@@ -202,16 +246,20 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/account'
     | '/assistant'
     | '/auth'
     | '/chats'
     | '/explore'
+    | '/founder'
     | '/my-listings'
     | '/projects'
+    | '/reset-password'
     | '/saved'
     | '/sell'
     | '/selling-guide'
+    | '/site-settings'
     | '/assistant/$threadId'
     | '/chat/$id'
     | '/listing/$id'
@@ -221,16 +269,20 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AccountRoute: typeof AccountRoute
   AssistantRoute: typeof AssistantRouteWithChildren
   AuthRoute: typeof AuthRoute
   ChatsRoute: typeof ChatsRoute
   ExploreRoute: typeof ExploreRoute
+  FounderRoute: typeof FounderRoute
   MyListingsRoute: typeof MyListingsRoute
   ProjectsRoute: typeof ProjectsRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SavedRoute: typeof SavedRoute
   SellRoute: typeof SellRoute
   SellingGuideRoute: typeof SellingGuideRoute
+  SiteSettingsRoute: typeof SiteSettingsRoute
   ChatIdRoute: typeof ChatIdRoute
   ListingIdRoute: typeof ListingIdRouteWithChildren
   ProfileIdRoute: typeof ProfileIdRoute
@@ -243,6 +295,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account': {
@@ -280,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExploreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/founder': {
+      id: '/founder'
+      path: '/founder'
+      fullPath: '/founder'
+      preLoaderRoute: typeof FounderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my-listings': {
       id: '/my-listings'
       path: '/my-listings'
@@ -292,6 +358,13 @@ declare module '@tanstack/react-router' {
       path: '/projects'
       fullPath: '/projects'
       preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/saved': {
@@ -313,6 +386,13 @@ declare module '@tanstack/react-router' {
       path: '/selling-guide'
       fullPath: '/selling-guide'
       preLoaderRoute: typeof SellingGuideRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/site-settings': {
+      id: '/site-settings'
+      path: '/site-settings'
+      fullPath: '/site-settings'
+      preLoaderRoute: typeof SiteSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/assistant/$threadId': {
@@ -379,16 +459,20 @@ const ListingIdRouteWithChildren = ListingIdRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AccountRoute: AccountRoute,
   AssistantRoute: AssistantRouteWithChildren,
   AuthRoute: AuthRoute,
   ChatsRoute: ChatsRoute,
   ExploreRoute: ExploreRoute,
+  FounderRoute: FounderRoute,
   MyListingsRoute: MyListingsRoute,
   ProjectsRoute: ProjectsRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SavedRoute: SavedRoute,
   SellRoute: SellRoute,
   SellingGuideRoute: SellingGuideRoute,
+  SiteSettingsRoute: SiteSettingsRoute,
   ChatIdRoute: ChatIdRoute,
   ListingIdRoute: ListingIdRouteWithChildren,
   ProfileIdRoute: ProfileIdRoute,

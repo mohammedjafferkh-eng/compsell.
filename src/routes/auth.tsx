@@ -19,13 +19,16 @@ export const Route = createFileRoute("/auth")({
       },
       { property: "og:title", content: "Sign in — compsell" },
       { property: "og:description", content: "Sign in to buy and sell electronics components." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,
 });
 
 function AuthPage() {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
+  const [sent, setSent] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -41,8 +44,14 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     try {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+        if (error) throw error;
+        setSent(true);
+        return;
+      }
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -51,6 +60,10 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        if (!data.session) {
+          toast.success("Check your email to confirm your account.");
+          return;
+        }
         toast.success("Account created. You're in!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -83,13 +96,13 @@ function AuthPage() {
           <Logo compact />
         </div>
         <h1 className="mt-5 text-center text-xl font-bold">
-          {mode === "signin" ? "Welcome back" : "Create your account"}
+          {mode === "forgot" ? "Reset your password" : mode === "signin" ? "Welcome back" : "Create your account"}
         </h1>
         <p className="mt-1 text-center text-sm text-muted-foreground">
           Buy. Sell. Reuse Electronics.
         </p>
 
-        <Button variant="outline" className="mt-5 w-full" onClick={google} type="button">
+        {mode !== "forgot" && <><Button variant="outline" className="mt-5 w-full" onClick={google} type="button">
           Continue with Google
         </Button>
 
@@ -97,7 +110,7 @@ function AuthPage() {
           <span className="h-px flex-1 bg-border" />
           or
           <span className="h-px flex-1 bg-border" />
-        </div>
+        </div></>}
 
         <form className="space-y-3" onSubmit={submit}>
           {mode === "signup" && (
@@ -111,6 +124,7 @@ function AuthPage() {
               />
             </div>
           )}
+          {sent && <p role="status" className="text-sm text-primary">If this email has an account, a password reset link is on its way. Check your inbox and spam folder.</p>}
           <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -122,7 +136,7 @@ function AuthPage() {
               placeholder="you@college.edu"
             />
           </div>
-          <div className="space-y-1.5">
+          {mode !== "forgot" && <div className="space-y-1.5">
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
@@ -133,19 +147,20 @@ function AuthPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
             />
-          </div>
+          </div>}
           <Button type="submit" className="w-full" disabled={busy}>
-            {mode === "signin" ? "Sign in" : "Create account"}
+            {busy ? "Please wait…" : mode === "forgot" ? "Send reset link" : mode === "signin" ? "Sign in" : "Create account"}
           </Button>
         </form>
 
-        <button
+        {mode === "signin" && <Button variant="link" type="button" className="mt-2 w-full" onClick={() => {setMode("forgot"); setSent(false);}}>Forgot password?</Button>}
+        <Button variant="link"
           type="button"
           className="mt-4 w-full text-center text-sm text-primary"
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
         >
-          {mode === "signin" ? "New here? Create an account" : "Already have an account? Sign in"}
-        </button>
+          {mode === "signin" ? "New here? Create an account" : "Back to sign in"}
+        </Button>
       </div>
       <Link to="/" className="mt-5 text-sm text-muted-foreground">
         Browse without signing in
