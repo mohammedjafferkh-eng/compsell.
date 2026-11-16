@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - AI features (assistant, listing writer, smart search, listing guard) live in `src/lib/ai.functions.ts` as authenticated server functions using `@lovable.dev/ai-gateway`; keep prompts and model calls server-side only.
+- Keep browsing click handlers ungated; the Sell form prompts signed-out visitors on submission, while private features retain their existing auth checks to protect user data.

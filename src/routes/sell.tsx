@@ -1,9 +1,10 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
-import { RequireAuth } from "@/components/RequireAuth";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ListingForm, type ListingFormValues } from "@/components/ListingForm";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadImage } from "@/lib/storage";
@@ -24,6 +25,8 @@ export const Route = createFileRoute("/sell")({
           "List your spare boards, sensors or modules on compsell in a minute: photos, price in rupees, quantity and pickup campus.",
       },
       { property: "og:title", content: "Sell a component — compsell" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       {
         property: "og:description",
         content: "List your spare boards, sensors or modules on compsell in a minute.",
@@ -40,21 +43,20 @@ function SellPage() {
       <p className="mb-5 mt-1 text-sm text-muted-foreground">
         Add up to 5 photos so buyers know exactly what they're getting.
       </p>
-      <RequireAuth title="Sign in to list a component">
-        <SellForm />
-      </RequireAuth>
+      <SellForm />
     </AppShell>
   );
 }
 
 function SellForm() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { data: profile } = useProfile(user?.id);
   const navigate = useNavigate();
   const qc = useQueryClient();
   const screen = useServerFn(screenListing);
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
+  const [promptOpen, setPromptOpen] = useState(false);
   const [values, setValues] = useState<ListingFormValues>({
     title: "",
     category: "",
@@ -78,7 +80,11 @@ function SellForm() {
   };
 
   async function submit() {
-    if (!user) return;
+    if (loading) return;
+    if (!user) {
+      setPromptOpen(true);
+      return;
+    }
     if (!filled.category || !filled.condition) {
       toast.error("Pick a category and condition");
       return;
@@ -139,7 +145,15 @@ function SellForm() {
 
   return (
     <>
-    <AiListingWriter
+    <Dialog open={promptOpen && !user} onOpenChange={setPromptOpen}>
+      <DialogContent className="max-w-sm rounded-lg">
+        <DialogTitle>Sign in to publish your listing</DialogTitle>
+        <DialogDescription>Create a free account or sign in before publishing. Your listing hasn't been submitted yet.</DialogDescription>
+        <Button asChild><Link to="/auth">Sign in / Sign up</Link></Button>
+        <Button variant="ghost" onClick={() => setPromptOpen(false)}>Keep editing</Button>
+      </DialogContent>
+    </Dialog>
+    {user && <AiListingWriter
       isProject={values.is_project}
       onApply={(d) =>
         setValues((v) => ({
@@ -151,14 +165,14 @@ function SellForm() {
           price: d.price > 0 ? String(d.price) : v.price,
         }))
       }
-    />
+    />}
     <ListingForm
       values={filled}
       onChange={setValues}
       files={files}
       onFilesChange={setFiles}
       onSubmit={submit}
-      submitting={busy}
+      submitting={busy || loading}
       submitLabel={busy ? "Checking..." : "Publish listing"}
     />
     </>

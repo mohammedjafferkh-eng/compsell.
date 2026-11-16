@@ -23,6 +23,8 @@ export const Route = createFileRoute("/")({
           "Browse ESP32 boards, sensors, motors and modules for sale near your campus. List your spare components in a minute on compsell.",
       },
       { property: "og:title", content: "compsell — Buy, sell and reuse electronics components" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       {
         property: "og:description",
         content: "Browse ESP32 boards, sensors, motors and modules for sale near your campus.",
