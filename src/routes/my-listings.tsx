@@ -39,6 +39,8 @@ export const Route = createFileRoute("/my-listings")({
       { property: "og:title", content: "My listings — compsell" },
       { property: "og:description", content: "Manage your compsell listings and stock." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: MyListingsPage,

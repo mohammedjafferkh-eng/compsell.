@@ -59,6 +59,8 @@ export const Route = createFileRoute("/listing/$id")({
         property: "og:description",
         content: "Photos, price, condition and pickup details for this component.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ListingDetail,

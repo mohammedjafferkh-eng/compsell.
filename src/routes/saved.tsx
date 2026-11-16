@@ -22,6 +22,8 @@ export const Route = createFileRoute("/saved")({
       { property: "og:title", content: "Saved listings — compsell" },
       { property: "og:description", content: "Your saved components and projects on compsell." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: SavedPage,

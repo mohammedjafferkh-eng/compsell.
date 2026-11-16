@@ -23,6 +23,8 @@ export const Route = createFileRoute("/projects")({
         property: "og:description",
         content: "Buy and sell finished student projects with code, report and hardware included.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ProjectsPage,

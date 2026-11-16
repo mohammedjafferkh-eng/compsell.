@@ -9,6 +9,6 @@
 - [x] AI: listing writer (title, description, price) on Sell form
 - [x] AI: smart search (plain language → filters)
 - [x] AI: photo/listing guard before publishing
-- [ ] Redesign the marketplace with existing colors, component ticker, footer, About and founder pages
-- [ ] Add owner-only founder/logo editing for the requested account
-- [ ] Add account-password recovery by email and verify requested flows
+- [x] Redesign the marketplace with existing colors, component ticker, footer, About and founder pages
+- [x] Add owner-only founder/logo editing for the requested account
+- [x] Add account-password recovery by email; recovery entry and expired-link page checked (email delivery and link redemption not verified)

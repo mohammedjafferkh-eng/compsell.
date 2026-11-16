@@ -26,6 +26,8 @@ export const Route = createFileRoute("/profile/$id")({
       },
       { property: "og:title", content: "Seller profile — compsell" },
       { property: "og:description", content: "Seller rating, reviews and active component listings." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: PublicProfile,

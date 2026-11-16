@@ -21,6 +21,8 @@ export const Route = createFileRoute("/assistant/$threadId")({
       { property: "og:title", content: "Chat — compsell AI" },
       { property: "og:description", content: "Your conversation with compsell AI." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ThreadPage,

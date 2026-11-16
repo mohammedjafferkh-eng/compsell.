@@ -19,6 +19,8 @@ export const Route = createFileRoute("/listing/$id/edit")({
       { property: "og:title", content: "Edit listing — compsell" },
       { property: "og:description", content: "Update your compsell listing details." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: EditPage,

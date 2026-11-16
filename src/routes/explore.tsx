@@ -40,6 +40,8 @@ export const Route = createFileRoute("/explore")({
         property: "og:description",
         content: "Filter electronics listings by category, condition, price and campus.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Explore,

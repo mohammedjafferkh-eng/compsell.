@@ -17,6 +17,8 @@ export const Route = createFileRoute("/chats")({
       { property: "og:title", content: "Chats — compsell" },
       { property: "og:description", content: "Your compsell buyer and seller conversations." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ChatsPage,

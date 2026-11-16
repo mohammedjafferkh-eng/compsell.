@@ -23,6 +23,8 @@ export const Route = createFileRoute("/selling-guide")({
         property: "og:description",
         content: "Estimate a fair electronics resale price and learn the compsell process.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: SellingGuide,

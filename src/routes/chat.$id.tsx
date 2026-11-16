@@ -23,6 +23,8 @@ export const Route = createFileRoute("/chat/$id")({
       { property: "og:title", content: "Conversation — compsell" },
       { property: "og:description", content: "Chat about this component listing on compsell." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: ChatPage,
