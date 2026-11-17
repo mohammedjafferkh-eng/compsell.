@@ -36,6 +36,13 @@
       "when": 1794831135007,
       "tag": "0004_owner_site_branding",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794941168930,
+      "tag": "0005_scope_public_photo_reads",
+      "breakpoints": true
     }
   ]
 }
