@@ -11,4 +11,5 @@
 - [x] AI: photo/listing guard before publishing
 - [x] Redesign the marketplace with existing colors, component ticker, footer, About and founder pages
 - [x] Add owner-only founder/logo editing for the requested account
+- [x] Add optional logo/photo replacement and deletion; verify saved changes survive reload
 - [x] Add account-password recovery by email; recovery entry and expired-link page checked (email delivery and link redemption not verified)

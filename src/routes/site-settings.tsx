@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Save, Upload, LockKeyhole } from "lucide-react";
+import { Save, Upload, LockKeyhole, Trash2, ImagePlus } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,5 +38,28 @@ function EditorForm() {
     e.preventDefault(); setBusy(true);
     try { const {error} = await supabase.from("site_settings").upsert({id: "main", ...form, updated_at: new Date().toISOString()}); if (error) throw error; await qc.invalidateQueries({queryKey: ["site-settings"]}); toast.success("Site updated"); } catch { toast.error("Could not save site changes."); } finally { setBusy(false); }
   }
-  return <form onSubmit={save} className="max-w-2xl space-y-7"><div className="grid gap-6 sm:grid-cols-2">{([{field: "logo_path", label: "Site logo", url: logo}, {field: "founder_photo", label: "Founder photo", url: photo}] as const).map(({field,label,url}) => <div key={field}><Label htmlFor={field}>{label}</Label>{url && <img src={url} alt={label} className="my-3 h-28 w-28 rounded-md object-contain" />}<label className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-primary"><Upload className="size-4" /> Upload image<input id={field} type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" disabled={busy} onChange={e => {const file=e.target.files?.[0]; if (file) void upload(file, field);}} /></label></div>)}</div><div className="space-y-2"><Label htmlFor="founder-name">Founder name</Label><Input id="founder-name" required maxLength={120} value={form.founder_name} onChange={e => setForm({...form, founder_name: e.target.value})} /></div><div className="space-y-2"><Label htmlFor="founder-bio">Founder story</Label><Textarea id="founder-bio" rows={6} maxLength={5000} value={form.founder_bio} onChange={e => setForm({...form, founder_bio: e.target.value})} /></div><div className="space-y-2"><Label htmlFor="about-text">About compsell</Label><Textarea id="about-text" rows={5} maxLength={5000} value={form.about_text} onChange={e => setForm({...form, about_text: e.target.value})} /></div><Button type="submit" disabled={busy}><Save className="size-4" />{busy ? "Saving…" : "Save changes"}</Button></form>;
+  return <form onSubmit={save} className="max-w-2xl space-y-7"><div className="grid gap-6 sm:grid-cols-2">{([{field: "logo_path", label: "Site logo", url: logo}, {field: "founder_photo", label: "Founder photo", url: photo}] as const).map(({field,label,url}) => <BrandingImage key={field} field={field} label={label} path={form[field]} url={url} busy={busy} onUpload={file => void upload(file, field)} onRemove={() => {setForm(prev => ({...prev, [field]: null})); toast.success(`${label} removed. Save changes to publish it.`);}} />)}</div><div className="space-y-2"><Label htmlFor="founder-name">Founder name</Label><Input id="founder-name" required maxLength={120} value={form.founder_name} onChange={e => setForm({...form, founder_name: e.target.value})} /></div><div className="space-y-2"><Label htmlFor="founder-bio">Founder story</Label><Textarea id="founder-bio" rows={6} maxLength={5000} value={form.founder_bio} onChange={e => setForm({...form, founder_bio: e.target.value})} /></div><div className="space-y-2"><Label htmlFor="about-text">About compsell</Label><Textarea id="about-text" rows={5} maxLength={5000} value={form.about_text} onChange={e => setForm({...form, about_text: e.target.value})} /></div><Button type="submit" disabled={busy}><Save className="size-4" />{busy ? "Saving…" : "Save changes"}</Button></form>;
+}
+
+function BrandingImage({ field, label, path, url, busy, onUpload, onRemove }: {
+  field: string;
+  label: string;
+  path: string | null;
+  url: string | null | undefined;
+  busy: boolean;
+  onUpload: (file: File) => void;
+  onRemove: () => void;
+}) {
+  const input = useRef<HTMLInputElement>(null);
+  return <div className="min-w-0 space-y-3">
+    <div className="flex flex-wrap items-baseline gap-2"><Label htmlFor={field}>{label}</Label><span className="text-xs text-muted-foreground">Optional</span></div>
+    <div className="flex h-32 items-center justify-center rounded-md border border-border bg-secondary">
+      {url ? <img src={url} alt={label} className="h-full w-full object-contain p-2" /> : <div className="flex items-center gap-2 text-sm text-muted-foreground"><ImagePlus className="size-5" />{path ? "Loading image…" : "No image"}</div>}
+    </div>
+    <div className="flex flex-wrap gap-2">
+      <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => input.current?.click()} aria-label={`${path ? "Replace" : "Add"} ${label.toLowerCase()}`}><Upload className="size-4" />{path ? "Replace" : "Add image"}</Button>
+      {path && <Button type="button" variant="ghost" size="sm" disabled={busy} aria-label={`Delete ${label.toLowerCase()}`} className="text-destructive" onClick={onRemove}><Trash2 className="size-4" />Delete</Button>}
+    </div>
+    <input ref={input} id={field} type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" disabled={busy} onChange={e => {const file = e.target.files?.[0]; e.target.value = ""; if (file) onUpload(file);}} />
+  </div>;
 }
