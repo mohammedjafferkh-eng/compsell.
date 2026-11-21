@@ -14,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile, type Profile } from "@/lib/queries";
 import { rupees } from "@/lib/marketplace";
+import { useServerFn } from "@tanstack/react-start";
+import { sendChatMessage } from "@/lib/push.functions";
 
 export const Route = createFileRoute("/chat/$id")({
   head: () => ({
@@ -47,6 +49,7 @@ function ChatRoom() {
   const qc = useQueryClient();
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const sendMessage = useServerFn(sendChatMessage);
   const endRef = useRef<HTMLDivElement>(null);
 
   const convoQ = useQuery({
@@ -79,7 +82,7 @@ function ChatRoom() {
 
   useEffect(() => {
     const channel = supabase
-      .channel(`messages-${id}`)
+      .channel(`messages-${id}-${crypto.randomUUID()}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${id}` },
@@ -103,18 +106,19 @@ function ChatRoom() {
   async function send() {
     const body = text.trim();
     if (!body || !user) return undefined;
+    if (sending) return undefined;
     setSending(true);
-    const { error } = await supabase
-      .from("messages")
-      .insert({ conversation_id: id, sender_id: user.id, message: body });
-    setSending(false);
-    if (error) {
-      toast.error(error.message);
-      return undefined;
+    try {
+      const result = await sendMessage({ data: { conversationId: id, message: body } });
+      setText("");
+      if (result.notifications === 'failed') toast.warning('Message sent, but the notification could not be delivered.');
+      void qc.invalidateQueries({ queryKey: ["messages", id] });
+      void qc.invalidateQueries({ queryKey: ["conversations"] });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not send your message');
+    } finally {
+      setSending(false);
     }
-    setText("");
-    qc.invalidateQueries({ queryKey: ["messages", id] });
-    qc.invalidateQueries({ queryKey: ["conversations"] });
     return undefined;
   }
 
@@ -214,6 +218,7 @@ function ChatRoom() {
           onChange={(e) => setText(e.target.value)}
           placeholder="Message..."
           aria-label="Message"
+          maxLength={10000}
         />
         <Button type="submit" disabled={sending || !text.trim()} aria-label="Send">
           <Send className="size-4" />

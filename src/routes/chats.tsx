@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { rupees, timeAgo } from "@/lib/marketplace";
+import { NotificationButton } from "@/components/MessageNotifications";
 
 export const Route = createFileRoute("/chats")({
   head: () => ({
@@ -27,7 +28,10 @@ export const Route = createFileRoute("/chats")({
 function ChatsPage() {
   return (
     <AppShell>
-      <h1 className="mb-4 text-xl font-bold">Chats</h1>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl font-bold">Chats</h1>
+        <NotificationButton />
+      </div>
       <RequireAuth title="Sign in to see your chats">
         <ChatList />
       </RequireAuth>
@@ -42,12 +46,13 @@ function ChatList() {
     queryKey: ["conversations", user?.id],
     enabled: !!user,
     queryFn: async () => {
+      if (!user) return [];
       const { data, error } = await supabase
         .from("conversations")
         .select(
           "id,created_at,buyer_id,seller_id,listings(id,title,price,listing_images(image_url,sort_order)),messages(message,created_at)",
         )
-        .or(`buyer_id.eq.${user!.id},seller_id.eq.${user!.id}`)
+        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];

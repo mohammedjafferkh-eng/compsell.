@@ -16,6 +16,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/sonner";
 import { useSiteSettings } from "@/lib/site-settings";
 import { useSignedUrl } from "@/lib/storage";
+import { MessageAlerts } from "@/components/MessageNotifications";
 
 
 function NotFoundComponent() {
@@ -138,6 +139,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <SiteFavicon />
+        <MessageAlerts />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
         <Toaster position="top-center" />

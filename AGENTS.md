@@ -13,3 +13,4 @@
 - Keep browsing click handlers ungated; the Sell form prompts signed-out visitors on submission, while private features retain their existing auth checks to protect user data.
 - Site content uses a singleton settings row with database-enforced editor authorization; branding lives in private storage with public read only for referenced assets, so visitors see published images but only the designated verified owner can edit.
 - Branding image controls stage replacement/removal in the editor until Save changes; reset file inputs after selection so choosing the same file triggers another upload.
+- Send chat messages through the authenticated push server function; verify conversation membership before accessing recipient devices, keep tokens private, and use a dedicated Firebase messaging worker without app-shell caching.

@@ -13,3 +13,4 @@
 - [x] Add owner-only founder/logo editing for the requested account
 - [x] Add optional logo/photo replacement and deletion; verify saved changes survive reload
 - [x] Add account-password recovery by email; recovery entry and expired-link page checked (email delivery and link redemption not verified)
+- [ ] Add buyer/seller message alerts and closed-app push notifications (web push connection settings required)
